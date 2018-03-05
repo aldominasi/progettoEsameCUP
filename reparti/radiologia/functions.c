@@ -1,10 +1,13 @@
 #include "disponibilita.h"
-#include "mywrapper.h"
+#include "frdwr.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 
 const char *FILEDB = "disponibilita.csv";
 
-void loadDB(struct disponibilita *lista_disponibilita)
+void read_from_db(struct disponibilita *lista_disponibilita)
 {
 	int i, fd_file, j, n;
 	char buff;
@@ -55,7 +58,7 @@ void loadDB(struct disponibilita *lista_disponibilita)
 	close(fd_file);
 }
 
-int conferma_appuntamento(struct disponibilita *lista_disponibilita)
+int write_into_db(struct disponibilita *lista_disponibilita)
 {
 	int fd_file,i;
 	char buff[PRESTAZIONE];
@@ -77,4 +80,23 @@ int conferma_appuntamento(struct disponibilita *lista_disponibilita)
 	}
 	close(fd_file);
 	return 1;
+}
+
+void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibilita, )
+{
+	char prestazioni[N_PRESTAZIONI][PRESTAZIONE],temp[PRESTAZIONE];
+	int i,j=0, count = N_PRESTAZIONI;
+	temp = lista_disponibilita[0].prestazione;
+	prestazioni[0] = lista_disponibilita[0].prestazione;
+	for(i=1;i<ROW;i++)
+	{
+		if(temp != lista_disponibilita[i].prestazione)
+		{
+			temp = lista_disponibilita[i].prestazione;
+			j++;
+			prestazioni[j] = lista_disponibilita[i].prestazione;
+		}
+	}
+	FullWrite(sock,&count,sizeof(int));
+	FullWrite(sock,prestazioni,sizeof(prestazioni));
 }

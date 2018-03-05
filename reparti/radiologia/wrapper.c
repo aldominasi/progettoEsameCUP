@@ -1,4 +1,5 @@
 #include "mywrapper.h"
+#include "frdwr.h"
 
 /*
  * Crea il socket, utilizzata sia lato client che lato server

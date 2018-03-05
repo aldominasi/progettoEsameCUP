@@ -16,5 +16,3 @@ void ImpostaIndirizzoClient(int famiglia, char *addr, int porta, struct sockaddr
 void ImpostaIndirizzoAnyServer(int famiglia, int porta, struct sockaddr_in *servaddr);
 int AccettazioneNuovaRichiesta(int sockfd);
 int AccettazioneNuovaRichiestaConcorrente(int sockfd, struct sockaddr_in *client, socklen_t *len);
-ssize_t FullWrite(int fd, const void *buf, size_t count);
-ssize_t FullRead(int fd, void *buf, size_t count);

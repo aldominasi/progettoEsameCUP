@@ -6,6 +6,8 @@
 #define FALSE 0
 #define ROW 45
 #define DATA 11
+#define N_PRESTAZIONI 3
+#define PRESTAZIONI_EROGABILI 0
 
 struct disponibilita
 {
@@ -15,5 +17,5 @@ struct disponibilita
 	char disponibile;
 };
 
-void loadDB(struct disponibilita *);
-int conferma_appuntamento(struct disponibilita *);
+void read_from_db(struct disponibilita *);
+int write_into_db(struct disponibilita *);
