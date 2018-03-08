@@ -37,3 +37,4 @@ void conferma_appuntamento(int, struct disponibilta);
 void inserisci_prenotazione_in_agenda(int sock);
 int write_into_db_prenotazioni(struct prenotazione *, int);
 void read_from_db_prenotazioni(struct prenotazione *);
+int count_lines(int);

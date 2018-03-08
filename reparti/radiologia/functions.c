@@ -156,59 +156,89 @@ void conferma_appuntamento(int sock, struct disponibilta prestazione_da_prenotar
 
 void inserisci_prenotazione_in_agenda(int sock)
 {
-	int i;
-	struct prenotazione prenotazione, lista_prenotazioni[ROW];
+	int i,n;
+	struct prenotazione prenotazione, *lista_prenotazioni;
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
+	read_from_db_prenotazioni(lista_prenotazioni,&n);
+	//bisogna inserire nel posto giusto la nuova prenotazione
 	
+	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
+	write_into_db_prenotazioni(lista_prenotazioni,n);
 }
 
-void read_from_db_prenotazioni(struct prenotazione *lista_prenotazioni)
+int count_lines(int fd)
 {
-	int i, fd_file, j, n;
 	char buff;
-	if((fd_file = open(FILEDB, O_RDONLY)) == -1)
+	int count = 0;
+	while(read(fd,&buff,1) > 0)
+	{
+		if(buff == '\n')
+			count++;
+	}
+	return count;
+}
+
+void read_from_db_prenotazioni(struct prenotazione *lista_prenotazioni, int *lines)
+{
+	int i, fd_file, j, n, lines;
+	char buff;
+	if((fd_file = open(FILEDB_PRENOTAZIONI, O_RDONLY)) == -1)
 	{
 		perror("open");
 		exit(1);
 	}
-	for(i=0;i<ROW;i++)
+	lines = count_lines(fd_file);
+	lista_prenotazioni = (struct prenotazioni *)malloc(lines * sizeof(struct prenotazioni));
+	if(lines > 0)
 	{
-		j=0;
-		read(fd_file,&buff,1);
-		while(buff != ';')
+		for(i=0;i<lines;i++)
 		{
-			lista_disponibilita[i].prestazione[j] = buff;
-			read(fd_file, &buff,1);
-			j++;
-		}
-		lista_disponibilita[i].prestazione[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != ';')
-		{
-			lista_disponibilita[i].data[j] = buff;
+			j=0;
 			read(fd_file,&buff,1);
-			j++;
-		}
-		lista_disponibilita[i].data[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != ';')
-		{
-			lista_disponibilita[i].orario[j] = buff;
+			while(buff != ';')
+			{
+				lista_prenotazioni[i].assistito.nome[j] = buff;
+				read(fd_file, &buff,1);
+				j++;
+			}
+			lista_prenotazioni[i].assistito.nome[j] = '\0';
 			read(fd_file,&buff,1);
-			j++;
-		}
-		lista_disponibilita[i].orario[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != '\n')
-		{
-			if(buff != ';')
-				lista_disponibilita[i].disponibile = buff;
+			j=0;
+			while(buff != ';')
+			{
+				lista_prenotazioni[i].assistito.cognome[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
+			lista_prenotazioni[i].assistito.cognome[j] = '\0';
 			read(fd_file,&buff,1);
-			j++;
+			j=0;
+			while(buff != ';')
+			{
+				lista_prenotazioni[i].data_appuntamento[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
+			lista_disponibilita[i].data_appuntamento[j] = '\0';
+			read(fd_file,&buff,1);
+			j=0;
+			while(buff != ';')
+			{
+				lista_prenotazioni[i].codice_ricetta[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
+			lista_prenotazioni[i].codice_ricetta[j] = '\0';
+			read(fd_file,&buff,1);
+			j=0;
+			while(buff != '\n')
+			{
+				if(buff != ';')
+					lista_prenotazioni[i].codice_prenotazione[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
 		}
 	}
 	close(fd_file);
