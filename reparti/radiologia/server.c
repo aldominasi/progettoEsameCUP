@@ -1,5 +1,4 @@
 #include "mywrapper.h"
-#include "pacchetti.h"
 #include "disponibilita.h"
 #include "frdwr.h"
 
