@@ -25,9 +25,18 @@ struct prenotazione
 	struct assistito assistito;
 	char prestazione[PRESTAZIONE];
 	char data_appuntamento[DATA];
+	char orario_appuntamento[
 	char codice_ricetta[RICETTA];
 	char codice_prenotazione[CODICE_PRENOTAZIONE];
 };
+
+struct disponibilita
+{
+	char prestazione[PRESTAZIONE];
+	char data[DATA];
+	char orario[3];
+	char disponibile;
+}
 
 void read_from_db(struct disponibilita *);
 int write_into_db(struct disponibilita *);

@@ -156,7 +156,7 @@ void conferma_appuntamento(int sock, struct disponibilta prestazione_da_prenotar
 
 void inserisci_prenotazione_in_agenda(int sock)
 {
-	int i,n;
+	int i,n, conferma = 1;
 	struct prenotazione prenotazione, *lista_prenotazioni;
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
@@ -165,6 +165,7 @@ void inserisci_prenotazione_in_agenda(int sock)
 	
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista_prenotazioni,n);
+	FullWrite(sock,&conferma,sizeof(int));
 }
 
 int count_lines(int fd)
@@ -263,6 +264,8 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].prestazione)+1);
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].data_appuntamento);
 		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].data_appuntamento)+1);
+		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].orario_appuntamento);
+		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].orario_appuntamento)+1);
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].codice_ricetta);
 		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].codice_ricetta)+1);
 		snprintf(buff,sizeof(buff),"%s\n",lista_prenotazioni[i].codice_prenotazione);
@@ -270,4 +273,10 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 	}
 	close(fd_file);
 	return 1;
-}	
+}
+/*
+void cancella_prenotazione(char *codice_prenotazione)
+{
+	int fd_file_prenotazioni, fd_file_disponibilita, i;
+	if((fd_file_prenotazioni = open(FILEDB_PRENOTAZIONI
+}*/
