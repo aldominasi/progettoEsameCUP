@@ -82,21 +82,38 @@ int write_into_db(struct disponibilita *lista_disponibilita)
 	return 1;
 }
 
-void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibilita, )
+void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibilita)
 {
 	char prestazioni[N_PRESTAZIONI][PRESTAZIONE],temp[PRESTAZIONE];
-	int i,j=0, count = N_PRESTAZIONI;
-	temp = lista_disponibilita[0].prestazione;
-	prestazioni[0] = lista_disponibilita[0].prestazione;
+	int i,j=0, count = N_PRESTAZIONI, length;
+	strcpy(temp,lista_disponibilita[0].prestazione);
+	strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
 	for(i=1;i<ROW;i++)
 	{
-		if(temp != lista_disponibilita[i].prestazione)
+		if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
 		{
-			temp = lista_disponibilita[i].prestazione;
+			strcpy(temp,lista_disponibilita[i].prestazione);
 			j++;
-			prestazioni[j] = lista_disponibilita[i].prestazione;
+			strcpy(prestazioni[j],lista_disponibilita[i].prestazione);
 		}
 	}
 	FullWrite(sock,&count,sizeof(int));
-	FullWrite(sock,prestazioni,sizeof(prestazioni));
+	for(i=0;i<count;i++)
+	{
+		length = (int)strlen(prestazioni[i]);
+		FullWrite(sock,&length,sizeof(int));
+		FullWrite(sock,prestazioni[i],length);
+	}
+}
+
+void invia_date_disponibili(int sock, struct disponibilita *lista_disponibilita, char *prestazione)
+{
+	int i,count=0;
+	for(i=0;i<ROW;i++)
+		if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
+			count += 1;
+	FullWrite(sock,&count,sizeof(int));
+	for(i=0;i<ROW;i++)
+		if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
+			FullWrite(sock,&lista_disponibilita[i],sizeof(struct disponibilita));
 }
