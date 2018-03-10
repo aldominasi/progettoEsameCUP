@@ -119,7 +119,7 @@ void invia_date_disponibili(int sock, struct disponibilita *lista_disponibilita,
 			FullWrite(sock,&lista_disponibilita[i],sizeof(struct disponibilita));
 }
 
-void conferma_appuntamento(int sock, struct disponibilta prestazione_da_prenotare)
+void conferma_appuntamento(int sock, struct disponibilita prestazione_da_prenotare)
 {
 	int i,index = -1,confermato;
 	struct disponibilita lista_disponibilita[ROW];
@@ -182,18 +182,18 @@ int count_lines(int fd)
 
 void read_from_db_prenotazioni(struct prenotazione *lista_prenotazioni, int *lines)
 {
-	int i, fd_file, j, n, lines;
+	int i, fd_file, j, n;
 	char buff;
 	if((fd_file = open(FILEDB_PRENOTAZIONI, O_RDONLY)) == -1)
 	{
 		perror("open");
 		exit(1);
 	}
-	lines = count_lines(fd_file);
-	lista_prenotazioni = (struct prenotazioni *)malloc(lines * sizeof(struct prenotazioni));
+	*lines = count_lines(fd_file);
+	lista_prenotazioni = (struct prenotazione *)malloc(*lines * sizeof(struct prenotazione));
 	if(lines > 0)
 	{
-		for(i=0;i<lines;i++)
+		for(i=0;i<*lines;i++)
 		{
 			j=0;
 			read(fd_file,&buff,1);
@@ -221,7 +221,7 @@ void read_from_db_prenotazioni(struct prenotazione *lista_prenotazioni, int *lin
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_disponibilita[i].data_appuntamento[j] = '\0';
+			lista_prenotazioni[i].data_appuntamento[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
@@ -274,9 +274,70 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 	close(fd_file);
 	return 1;
 }
-/*
-void cancella_prenotazione(char *codice_prenotazione)
+
+
+void cancella_prenotazione(int sock, char *codice_prenotazione)
 {
-	int fd_file_prenotazioni, fd_file_disponibilita, i;
-	if((fd_file_prenotazioni = open(FILEDB_PRENOTAZIONI
-}*/
+	int i, c, count, trovato = 0,j;
+	struct prenotazione *lista_prenotazioni, *lista_prenotazioni_aggiornata;
+	struct disponibilita lista_disponibilita[ROW]; //Legge il file delle prenotazioni
+	read_from_db_prenotazioni(lista_prenotazioni,&count);
+	if(count > 0)
+	{
+		for (i=0;i<count;i++)
+		{	
+			if(strcmp(lista_prenotazioni[i].codice_prenotazione,codice_prenotazione) == 0)
+			{
+				trovato = 1;
+				break;
+			}
+		}
+		if(trovato == 1) //trovata la prenotazione
+		{
+			read_from_db(lista_disponibilita);
+			for(j=0;j<ROW;j++)
+			{
+				if((strcmp(lista_prenotazioni[i].prestazione, lista_disponibilita[j].prestazione) == 0) && (strcmp(lista_prenotazioni[i].data_appuntamento, lista_disponibilita[j].data) == 0) && (strcmp(lista_prenotazioni[i].orario_appuntamento,lista_disponibilita[j].orario) == 0)) //trovata la disponibilita da settare a 1 per poterla rendere prenotabile
+				{
+					lista_disponibilita[j].disponibile = '1';
+				}
+			}
+			lista_prenotazioni_aggiornata = (struct prenotazione *)malloc((count - 1) * sizeof(struct prenotazione));
+			for(c=0;c<count;c++)
+			{
+				if(c < i)
+				{
+					strcpy(lista_prenotazioni_aggiornata[c].assistito.nome,lista_prenotazioni[c].assistito.nome);
+					strcpy(lista_prenotazioni_aggiornata[c].assistito.cognome, lista_prenotazioni[c].assistito.cognome);
+					strcpy(lista_prenotazioni_aggiornata[c].prestazione,lista_prenotazioni[c].prestazione);
+					strcpy(lista_prenotazioni_aggiornata[c].data_appuntamento,lista_prenotazioni[c].data_appuntamento);
+					strcpy(lista_prenotazioni_aggiornata[c].orario_appuntamento,lista_prenotazioni[c].orario_appuntamento);
+					strcpy(lista_prenotazioni_aggiornata[c].codice_ricetta,lista_prenotazioni[c].codice_ricetta);
+					strcpy(lista_prenotazioni_aggiornata[c].codice_prenotazione,lista_prenotazioni[c].codice_prenotazione);
+				}
+				else if(c > i)
+				{
+					strcpy(lista_prenotazioni_aggiornata[c-1].assistito.nome,lista_prenotazioni[c].assistito.nome);
+					strcpy(lista_prenotazioni_aggiornata[c-1].assistito.cognome, lista_prenotazioni[c].assistito.cognome);
+					strcpy(lista_prenotazioni_aggiornata[c-1].prestazione,lista_prenotazioni[c].prestazione);
+					strcpy(lista_prenotazioni_aggiornata[c-1].data_appuntamento,lista_prenotazioni[c].data_appuntamento);
+					strcpy(lista_prenotazioni_aggiornata[c-1].orario_appuntamento,lista_prenotazioni[c].orario_appuntamento);
+					strcpy(lista_prenotazioni_aggiornata[c-1].codice_ricetta,lista_prenotazioni[c].codice_ricetta);
+					strcpy(lista_prenotazioni_aggiornata[c-1].codice_prenotazione,lista_prenotazioni[c].codice_prenotazione);
+				}
+			}
+			write_into_db_prenotazioni(lista_prenotazioni_aggiornata,count-1);
+			write_into_db(lista_disponibilita);
+			FullWrite(sock,&trovato,sizeof(int));
+			free(lista_prenotazioni_aggiornata);
+			free(lista_prenotazioni);
+		}
+		else //Prenotazione non trovata
+		{
+			trovato = 2;
+			FullWrite(sock,&trovato,sizeof(int));
+		}
+	}
+	else
+		FullWrite(sock,&trovato,sizeof(int)); //Non Ci sono prenotazioni
+}
