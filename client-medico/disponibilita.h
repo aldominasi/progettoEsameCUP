@@ -48,4 +48,3 @@ int write_into_db_prenotazioni(struct prenotazione *, int);
 void read_from_db_prenotazioni(struct prenotazione *, int *);
 int count_lines(int);
 void cancella_prenotazione(int , char *);
-void informazioni_prenotazione(int);
