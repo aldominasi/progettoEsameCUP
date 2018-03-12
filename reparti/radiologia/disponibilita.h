@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#define PRESTAZIONE 50
+#define PRESTAZIONE 51
 #define TRUE 1
 #define FALSE 0
 #define ROW 45
@@ -9,6 +9,7 @@
 #define N_PRESTAZIONI 3
 #define PRESTAZIONI_EROGABILI 0
 #define DATE_DISPONIBILI 1
+#define LISTA_PRENOTAZIONI 5
 #define NOME 20
 #define COGNOME 30
 #define RICETTA 15
@@ -45,7 +46,8 @@ void invia_date_disponibili(int, struct disponibilita *, char *);
 void conferma_appuntamento(int, struct disponibilita);
 void inserisci_prenotazione_in_agenda(int sock);
 int write_into_db_prenotazioni(struct prenotazione *, int);
-void read_from_db_prenotazioni(struct prenotazione *, int *);
+void read_from_db_prenotazioni(struct prenotazione **, int *);
 int count_lines(int);
 void cancella_prenotazione(int , char *);
 void informazioni_prenotazione(int);
+void invia_lista_prenotazioni(int,char *);

@@ -8,12 +8,17 @@
 int main(int argc, char *argv[])
 {
 	struct disponibilita lista_disponibilita[ROW];
-	char prestazione_scelta[PRESTAZIONE];
-	int listenfd, connfd, codice_comunicazione, length;
+	char prestazione_scelta[PRESTAZIONE], data[DATA];
+	int listenfd, connfd, codice_comunicazione, length, enabled = 1;
 	pid_t pid;
 	struct sockaddr_in my_addr;
 	listenfd = Socket(AF_INET,SOCK_STREAM,0);
 	ImpostaIndirizzoAnyServer(AF_INET,PORTA,&my_addr);
+	if(setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(int)) < 0)
+	{
+		perror("setsockopt");
+		exit(1);
+	}
 	AssegnaIndirizzo(listenfd,my_addr);
 	Ascolto(listenfd,CLIENT_QUEUE);
 	for(;;)
@@ -41,6 +46,12 @@ int main(int argc, char *argv[])
 				while(FullRead(connfd,&length,sizeof(int)) > 0);
 				while(FullRead(connfd,prestazione_scelta,length) > 0);
 				invia_date_disponibili(connfd, lista_disponibilita,prestazione_scelta);
+			}
+			else if(codice_comunicazione == LISTA_PRENOTAZIONI)
+			{
+				while(FullRead(connfd,&data,DATA) > 0);
+				fprintf(stdout,"%s\n",data);
+				invia_lista_prenotazioni(connfd,data);
 			}
 			close(connfd);
 			exit(0);

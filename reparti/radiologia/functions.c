@@ -5,84 +5,6 @@
 #include <unistd.h>
 #include <string.h>
 
-const char *FILEDB = "disponibilita.csv";
-const char *FILEDB_PRENOTAZIONI = "prenotazioni.csv";
-
-void read_from_db(struct disponibilita *lista_disponibilita)
-{
-	int i, fd_file, j, n;
-	char buff;
-	if((fd_file = open(FILEDB, O_RDONLY)) == -1)
-	{
-		perror("open");
-		exit(1);
-	}
-	for(i=0;i<ROW;i++)
-	{
-		j=0;
-		read(fd_file,&buff,1);
-		while(buff != ';')
-		{
-			lista_disponibilita[i].prestazione[j] = buff;
-			read(fd_file, &buff,1);
-			j++;
-		}
-		lista_disponibilita[i].prestazione[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != ';')
-		{
-			lista_disponibilita[i].data[j] = buff;
-			read(fd_file,&buff,1);
-			j++;
-		}
-		lista_disponibilita[i].data[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != ';')
-		{
-			lista_disponibilita[i].orario[j] = buff;
-			read(fd_file,&buff,1);
-			j++;
-		}
-		lista_disponibilita[i].orario[j] = '\0';
-		read(fd_file,&buff,1);
-		j=0;
-		while(buff != '\n')
-		{
-			if(buff != ';')
-				lista_disponibilita[i].disponibile = buff;
-			read(fd_file,&buff,1);
-			j++;
-		}
-	}
-	close(fd_file);
-}
-
-int write_into_db(struct disponibilita *lista_disponibilita)
-{
-	int fd_file,i;
-	char buff[PRESTAZIONE+1];
-	if((fd_file = open(FILEDB,O_WRONLY)) == -1)
-	{
-		perror("open");
-		return 0;
-	}
-	for(i = 0;i<ROW;i++)
-	{
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].prestazione)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].data)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].orario)+1);
-		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
-		FullWrite(fd_file,buff,2);
-	}
-	close(fd_file);
-	return 1;
-}
-
 void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibilita)
 {
 	char prestazioni[N_PRESTAZIONI][PRESTAZIONE],temp[PRESTAZIONE];
@@ -160,119 +82,12 @@ void inserisci_prenotazione_in_agenda(int sock)
 	struct prenotazione prenotazione, *lista_prenotazioni;
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
-	read_from_db_prenotazioni(lista_prenotazioni,&n);
+	read_from_db_prenotazioni(&lista_prenotazioni,&n);
 	//bisogna inserire nel posto giusto la nuova prenotazione
 	
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista_prenotazioni,n);
 	FullWrite(sock,&conferma,sizeof(int));
-}
-
-int count_lines(int fd)
-{
-	char buff;
-	int count = 0;
-	while(read(fd,&buff,1) > 0)
-	{
-		if(buff == '\n')
-			count++;
-	}
-	return count;
-}
-
-void read_from_db_prenotazioni(struct prenotazione *lista_prenotazioni, int *lines)
-{
-	int i, fd_file, j, n;
-	char buff;
-	if((fd_file = open(FILEDB_PRENOTAZIONI, O_RDONLY)) == -1)
-	{
-		perror("open");
-		exit(1);
-	}
-	*lines = count_lines(fd_file);
-	lista_prenotazioni = (struct prenotazione *)malloc(*lines * sizeof(struct prenotazione));
-	if(lines > 0)
-	{
-		for(i=0;i<*lines;i++)
-		{
-			j=0;
-			read(fd_file,&buff,1);
-			while(buff != ';')
-			{
-				lista_prenotazioni[i].assistito.nome[j] = buff;
-				read(fd_file, &buff,1);
-				j++;
-			}
-			lista_prenotazioni[i].assistito.nome[j] = '\0';
-			read(fd_file,&buff,1);
-			j=0;
-			while(buff != ';')
-			{
-				lista_prenotazioni[i].assistito.cognome[j] = buff;
-				read(fd_file,&buff,1);
-				j++;
-			}
-			lista_prenotazioni[i].assistito.cognome[j] = '\0';
-			read(fd_file,&buff,1);
-			j=0;
-			while(buff != ';')
-			{
-				lista_prenotazioni[i].data_appuntamento[j] = buff;
-				read(fd_file,&buff,1);
-				j++;
-			}
-			lista_prenotazioni[i].data_appuntamento[j] = '\0';
-			read(fd_file,&buff,1);
-			j=0;
-			while(buff != ';')
-			{
-				lista_prenotazioni[i].codice_ricetta[j] = buff;
-				read(fd_file,&buff,1);
-				j++;
-			}
-			lista_prenotazioni[i].codice_ricetta[j] = '\0';
-			read(fd_file,&buff,1);
-			j=0;
-			while(buff != '\n')
-			{
-				if(buff != ';')
-					lista_prenotazioni[i].codice_prenotazione[j] = buff;
-				read(fd_file,&buff,1);
-				j++;
-			}
-		}
-	}
-	close(fd_file);
-}
-
-int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int count)
-{
-	int fd_file,i;
-	char buff[PRESTAZIONE+1];
-	if((fd_file = open(FILEDB_PRENOTAZIONI,O_WRONLY)) == -1)
-	{
-		perror("open");
-		return 0;
-	}
-	for(i = 0;i<count;i++)
-	{
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.nome);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].assistito.nome)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.cognome);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].assistito.cognome)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].prestazione);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].prestazione)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].data_appuntamento);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].data_appuntamento)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].orario_appuntamento);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].orario_appuntamento)+1);
-		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].codice_ricetta);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].codice_ricetta)+1);
-		snprintf(buff,sizeof(buff),"%s\n",lista_prenotazioni[i].codice_prenotazione);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].codice_prenotazione)+1);
-	}
-	close(fd_file);
-	return 1;
 }
 
 
@@ -281,7 +96,7 @@ void cancella_prenotazione(int sock, char *codice_prenotazione)
 	int i, c, count, trovato = 0,j;
 	struct prenotazione *lista_prenotazioni, *lista_prenotazioni_aggiornata;
 	struct disponibilita lista_disponibilita[ROW]; //Legge il file delle prenotazioni
-	read_from_db_prenotazioni(lista_prenotazioni,&count);
+	read_from_db_prenotazioni(&lista_prenotazioni,&count);
 	if(count > 0)
 	{
 		for (i=0;i<count;i++)
@@ -347,7 +162,7 @@ void informazioni_prenotazione(int sock)
 	int i,count,trovato = 0;
 	struct prenotazione *lista_prenotazioni;
 	char codice_prenotazione[CODICE_PRENOTAZIONE];
-	read_from_db_prenotazioni(lista_prenotazioni,&count);
+	read_from_db_prenotazioni(&lista_prenotazioni,&count);
 	FullWrite(sock,&count,sizeof(int));
 	if(count > 0) //Ci sono prenotazioni effettuate
 	{
@@ -364,6 +179,40 @@ void informazioni_prenotazione(int sock)
 		}
 		if(trovato == 0) //Non è stata trovata la prenotazione
 			FullWrite(sock,&trovato,sizeof(int));
+	}
+	free(lista_prenotazioni);
+}
+
+void invia_lista_prenotazioni(int sock, char *data)
+{
+	int i,count,trovato = 0;
+	struct prenotazione *lista_prenotazioni;
+	char codice_prenotazione[CODICE_PRENOTAZIONE];
+	read_from_db_prenotazioni(&lista_prenotazioni,&count);
+	fprintf(stdout,"%s\n",lista_prenotazioni[0].assistito.nome);
+	if(count > 0) //Ci sono prenotazioni effettuate
+	{
+		fprintf(stdout,"Ci sono %d prenotazioni\n",count);
+		for(i=0;i<count;i++)
+		{
+			if(strcmp(data,lista_prenotazioni[i].data_appuntamento) == 0)
+			{
+				trovato += 1;
+			}
+		}
+		fprintf(stdout,"trovato: %d\n",trovato);
+		FullWrite(sock,&trovato,sizeof(int));
+		if(trovato > 0)
+		{
+			for(i=0;i<count;i++)
+				if(strcmp(data,lista_prenotazioni[i].data_appuntamento) == 0)
+					FullWrite(sock,&lista_prenotazioni[i],sizeof(struct prenotazione));
+		}
+	}
+	else
+	{
+		fprintf(stdout,"Non ci sono prenotazioni\n");
+		FullWrite(sock,&count,sizeof(int));
 	}
 	free(lista_prenotazioni);
 }
