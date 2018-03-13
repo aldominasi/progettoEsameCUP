@@ -32,13 +32,21 @@ void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibil
 void invia_date_disponibili(int sock, struct disponibilita *lista_disponibilita, char *prestazione)
 {
 	int i,count=0;
+	struct appuntamento appuntamento_da_inviare;
 	for(i=0;i<ROW;i++)
 		if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
 			count += 1;
 	FullWrite(sock,&count,sizeof(int));
-	for(i=0;i<ROW;i++)
-		if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
-			FullWrite(sock,&lista_disponibilita[i],sizeof(struct disponibilita));
+	if(count > 0)
+	{
+		for(i=0;i<ROW;i++)
+			if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && (lista_disponibilita[i].disponibile == '1'))
+			{
+				strcpy(appuntamento_da_inviare.data,lista_disponibilita[i].data);
+				strcpy(appuntamento_da_inviare.orario, lista_disponibilita[i].orario);
+				FullWrite(sock,&appuntamento_da_inviare,sizeof(struct appuntamento));
+			}
+	}
 }
 
 void conferma_appuntamento(int sock, struct disponibilita prestazione_da_prenotare)

@@ -8,10 +8,10 @@
 
 int main(int argc, char *argv[])
 {
-	int i,sockfd, n, codice = LISTA_PRENOTAZIONI, length;
+	int i,sockfd, n, codice = DATE_DISPONIBILI, length;
 	struct sockaddr_in servaddr;
-	char data[DATA];
-	struct prenotazione *lista_prenotazioni;
+	char **data, *prestazione = "TAC";
+	struct appuntamento *lista_appuntamenti;
 	if(argc != 2)
 	{
 		fprintf(stdout,"usage: %s <IP_address>\n",argv[0]);
@@ -20,18 +20,19 @@ int main(int argc, char *argv[])
 	sockfd = Socket(AF_INET, SOCK_STREAM,0);
 	ImpostaIndirizzoClient(AF_INET, argv[1], PORTA, &servaddr);
 	Connessione(sockfd, servaddr);
+	length = strlen(prestazione);
 	FullWrite(sockfd,&codice,sizeof(int));
-	fprintf(stdout,"Inserisci la data: ");
-	fscanf(stdin,"%s",data);
-	FullWrite(sockfd,data,DATA);
+	FullWrite(sockfd,&length,sizeof(int));
+	FullWrite(sockfd,prestazione,length);
 	while(FullRead(sockfd,&n,sizeof(int)) > 0);
 	if(n > 0)
 	{
-		lista_prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
+		lista_appuntamenti = (struct appuntamento *)malloc(n*sizeof(struct appuntamento));
 		for(i=0;i<n;i++)
-			while(FullRead(sockfd,&lista_prenotazioni[i],sizeof(struct prenotazione)) > 0);
+			while(FullRead(sockfd,&lista_appuntamenti[i],sizeof(struct appuntamento)) > 0);
 		for(i=0;i<n;i++)
-			fprintf(stdout,"%s\n",lista_prenotazioni[i].codice_prenotazione);
+			fprintf(stdout,"%s %s\n",lista_appuntamenti[i].data,lista_appuntamenti[i].orario);
+		free(lista_appuntamenti);
 	}
 	else
 		fprintf(stdout,"Non ci sono prenotazioni\n");
