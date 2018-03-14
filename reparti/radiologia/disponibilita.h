@@ -52,10 +52,10 @@ struct appuntamento
 	char orario[ORARIO];
 };
 
-void read_from_db(struct disponibilita *);
-int write_into_db(struct disponibilita *);
-void invia_prestazioni_erogabili(int,struct disponibilita *);
-void invia_date_disponibili(int, struct disponibilita *, char *);
+void read_from_db(struct disponibilita **, int *);
+int write_into_db(struct disponibilita *,int);
+void invia_prestazioni_erogabili(int);
+void invia_date_disponibili(int, char *);
 void conferma_appuntamento(int, struct disponibilita);
 void inserisci_prenotazione_in_agenda(int sock);
 int write_into_db_prenotazioni(struct prenotazione *, int);

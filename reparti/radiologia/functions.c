@@ -5,83 +5,120 @@
 #include <unistd.h>
 #include <string.h>
 
-void invia_prestazioni_erogabili(int sock,struct disponibilita *lista_disponibilita)
+/*
+invia le prestazioni erogabili della struttura.
+*/
+void invia_prestazioni_erogabili(int sock)
 {
+	/*
+	prestazioni contiene tutte le prestazioni erogabili da inviare, temp viene utilizzata per
+	confrontare le prestazioni prima di inserirle nell'array da inviare
+	*/
 	char prestazioni[N_PRESTAZIONI][PRESTAZIONE],temp[PRESTAZIONE];
-	int i,j=0, count = N_PRESTAZIONI, length;
-	strcpy(temp,lista_disponibilita[0].prestazione);
-	strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
-	for(i=1;i<ROW;i++)
+	int i,j=0, count = N_PRESTAZIONI, length, n;
+	struct disponibilita *lista_disponibilita; //lista delle disponibilita
+	read_from_db(&lista_disponibilita,&n); //Recupera dal file le disponibilita del reparto
+	if (n > 0) //n contiene il numero di disponibilita presenti in lista_disponibilita
 	{
-		if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
+		strcpy(temp,lista_disponibilita[0].prestazione);
+		strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
+		for(i=1;i<n;i++)
 		{
-			strcpy(temp,lista_disponibilita[i].prestazione);
-			j++;
-			strcpy(prestazioni[j],lista_disponibilita[i].prestazione);
+			if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
+			{
+				strcpy(temp,lista_disponibilita[i].prestazione);
+				j++;
+				strcpy(prestazioni[j],lista_disponibilita[i].prestazione);
+			}
+		}
+		FullWrite(sock,&count,sizeof(int)); //Invia il numero di prestazioni
+		//Invia le prestazioni
+		for(i=0;i<count;i++)
+		{
+			length = (int)strlen(prestazioni[i]);
+			FullWrite(sock,&length,sizeof(int));
+			FullWrite(sock,prestazioni[i],length);
 		}
 	}
-	FullWrite(sock,&count,sizeof(int));
-	for(i=0;i<count;i++)
-	{
-		length = (int)strlen(prestazioni[i]);
-		FullWrite(sock,&length,sizeof(int));
-		FullWrite(sock,prestazioni[i],length);
-	}
+	free(lista_disponibilita); //Dealloca la memoria
 }
 
-void invia_date_disponibili(int sock, struct disponibilita *lista_disponibilita, char *prestazione)
+/*
+Invia le date disponibili
+*/
+void invia_date_disponibili(int sock, char *prestazione)
 {
-	int i,count=0;
+	int i,count=0,n;
 	struct appuntamento appuntamento_da_inviare;
-	for(i=0;i<ROW;i++)
-		if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
-			count += 1;
-	FullWrite(sock,&count,sizeof(int));
-	if(count > 0)
+	struct disponibilita *lista_disponibilita;
+	read_from_db(&lista_disponibilita,&n); //Recupera dal file le disponibilita del reparto
+	if(n > 0)
 	{
-		for(i=0;i<ROW;i++)
-			if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && (lista_disponibilita[i].disponibile == '1'))
-			{
-				strcpy(appuntamento_da_inviare.data,lista_disponibilita[i].data);
-				strcpy(appuntamento_da_inviare.orario, lista_disponibilita[i].orario);
-				FullWrite(sock,&appuntamento_da_inviare,sizeof(struct appuntamento));
-			}
+		for(i=0;i<n;i++)
+			if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && lista_disponibilita[i].disponibile == '1')
+				count += 1;
+		FullWrite(sock,&count,sizeof(int));
+		if(count > 0)
+		{
+			for(i=0;i<n;i++)
+				if((strcmp(prestazione,lista_disponibilita[i].prestazione) == 0) && (lista_disponibilita[i].disponibile == '1'))
+				{
+					strcpy(appuntamento_da_inviare.data,lista_disponibilita[i].data);
+					strcpy(appuntamento_da_inviare.orario, lista_disponibilita[i].orario);
+					FullWrite(sock,&appuntamento_da_inviare,sizeof(struct appuntamento));
+				}
+		}
 	}
+	else
+		FullWrite(sock,&count,sizeof(int));
+	free(lista_disponibilita);
 }
 
+/*
+Coferma l'appuntamento salvandolo nel file delle prenotazioni e invia la conferma
+*/
 void conferma_appuntamento(int sock, struct disponibilita prestazione_da_prenotare)
 {
-	int i,index = -1,confermato;
-	struct disponibilita lista_disponibilita[ROW];
-	read_from_db(lista_disponibilita);
-	for(i=0;i<ROW;i++)
+	int i,index = -1,confermato, n;
+	struct disponibilita *lista_disponibilita;
+	read_from_db(&lista_disponibilita,&n);
+	if(n > 0)
 	{
-		if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data) == 0))
+		for(i=0;i<n;i++)
 		{
-			index = i;
-			break;
+			if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data) == 0))
+			{
+				index = i;
+				break;
+			}
 		}
-	}
-	if(index >= 0) //data e prestazione trovate
-	{
-		if(lista_disponibilita[index].disponibile == '1') //l'appuntamento è disponibile
+		if(index >= 0) //data e prestazione trovate
 		{
-			confermato = 1; //appuntamento confermato
-			lista_disponibilita[index].disponibile = '0';
-			write_into_db(lista_disponibilita);
+			if(lista_disponibilita[index].disponibile == '1') //l'appuntamento è disponibile
+			{
+				confermato = 1; //appuntamento confermato
+				lista_disponibilita[index].disponibile = '0';
+				write_into_db(lista_disponibilita,n);
+				FullWrite(sock,&confermato,sizeof(int));
+			}
+			else //l'appuntamento non è disponibile
+			{
+				confermato = 0; //appuntamento non confermato
+				FullWrite(sock,&confermato,sizeof(int));
+			}
+		}
+		else //data e prestazione non trovate
+		{
+			confermato = 2; //appuntamento non trovato
 			FullWrite(sock,&confermato,sizeof(int));
 		}
-		else //l'appuntamento non è disponibile
-		{
-			confermato = 0; //appuntamento non confermato
-			FullWrite(sock,&confermato,sizeof(int));
-		}
 	}
-	else //data e prestazione non trovate
+	else
 	{
-		confermato = 2; //appuntamento non trovato
+		confermato = 3;
 		FullWrite(sock,&confermato,sizeof(int));
 	}
+	free(lista_disponibilita);
 }
 
 void inserisci_prenotazione_in_agenda(int sock)
@@ -101,9 +138,9 @@ void inserisci_prenotazione_in_agenda(int sock)
 
 void cancella_prenotazione(int sock, char *codice_prenotazione)
 {
-	int i, c, count, trovato = 0,j;
+	int i, c, count, trovato = 0,j, n;
 	struct prenotazione *lista_prenotazioni, *lista_prenotazioni_aggiornata;
-	struct disponibilita lista_disponibilita[ROW]; //Legge il file delle prenotazioni
+	struct disponibilita *lista_disponibilita; //Legge il file delle prenotazioni
 	read_from_db_prenotazioni(&lista_prenotazioni,&count);
 	if(count > 0)
 	{
@@ -117,8 +154,8 @@ void cancella_prenotazione(int sock, char *codice_prenotazione)
 		}
 		if(trovato == 1) //trovata la prenotazione
 		{
-			read_from_db(lista_disponibilita);
-			for(j=0;j<ROW;j++)
+			read_from_db(&lista_disponibilita, &n);
+			for(j=0;j<n;j++)
 			{
 				if((strcmp(lista_prenotazioni[i].prestazione, lista_disponibilita[j].prestazione) == 0) && (strcmp(lista_prenotazioni[i].data_appuntamento, lista_disponibilita[j].data) == 0) && (strcmp(lista_prenotazioni[i].orario_appuntamento,lista_disponibilita[j].orario) == 0)) //trovata la disponibilita da settare a 1 per poterla rendere prenotabile
 				{
@@ -150,7 +187,7 @@ void cancella_prenotazione(int sock, char *codice_prenotazione)
 				}
 			}
 			write_into_db_prenotazioni(lista_prenotazioni_aggiornata,count-1);
-			write_into_db(lista_disponibilita);
+			write_into_db(lista_disponibilita,n);
 			FullWrite(sock,&trovato,sizeof(int));
 			free(lista_prenotazioni_aggiornata);
 			free(lista_prenotazioni);
