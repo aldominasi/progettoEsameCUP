@@ -22,7 +22,7 @@ void read_from_db(struct disponibilita **lista_disponibilita, int *lines)
 	*lista_disponibilita = (struct disponibilita *)malloc(*lines * sizeof(struct disponibilita));
 	if(*lines > 0)
 	{
-		for(i=0;i<ROW;i++)
+		for(i=0;i<*lines;i++)
 		{
 			j=0;
 			read(fd_file,&buff,1);

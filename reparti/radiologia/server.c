@@ -7,7 +7,6 @@
 
 int main(int argc, char *argv[])
 {
-	struct disponibilita lista_disponibilita[ROW];
 	char prestazione_scelta[PRESTAZIONE], data[DATA];
 	int listenfd, connfd, codice_comunicazione = 9, length, enabled = 1;
 	pid_t pid;
