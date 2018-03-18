@@ -139,6 +139,15 @@ void read_from_db_prenotazioni(struct prenotazione **lista_prenotazioni, int *li
 			j=0;
 			while(buff != ';')
 			{
+				lista_prenotazioni[i]->prestazione[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
+			lista_prenotazioni[i]->prestazione[j] = '\0';
+			read(fd_file,&buff,1);
+			j=0;
+			while(buff != ';')
+			{
 				lista_prenotazioni[i]->data_appuntamento[j] = buff;
 				read(fd_file,&buff,1);
 				j++;

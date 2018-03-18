@@ -64,3 +64,4 @@ int count_lines(int);
 void cancella_prenotazione(int , char *);
 void informazioni_prenotazione(int);
 void invia_lista_prenotazioni(int,char *);
+void invia_lista_prenotazioni_senza_data(int );

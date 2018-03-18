@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 #define PRESTAZIONE 51 //MAX CHAR PER DESCRIVERE LA PRESTAZIONE (50)
 #define TRUE 1
@@ -46,8 +47,11 @@ struct appuntamento
 };
 
 void invia_data(int);
-void ricevi_prenotazioni(int , struct prenotazioni, int);
-void ordina_per_orario(struct prenotazioni **, int );
-void ordina_per_giorno_e_orario(struct prenotazioni **, int );
-void visualizza_lista_prenotazioni(struct prenotazioni *, int );
+void ricevi_prenotazioni(int , struct prenotazione **, int *);
+void ordina_per_orario(struct prenotazione **, int );
+void converti_data(int *,int *, int *, char *);
+int confronta_giorno(char *,char *);
+void ordina_per_giorno_e_orario(struct prenotazione **, int );
+void visualizza_lista_prenotazioni(struct prenotazione *, int );
 void invia_operazione(int, int);
+void assegna_prenotazione(struct prenotazione *,struct prenotazione );

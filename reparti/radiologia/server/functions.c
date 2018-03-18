@@ -234,10 +234,8 @@ void invia_lista_prenotazioni(int sock, char *data)
 	struct prenotazione *lista_prenotazioni;
 	char codice_prenotazione[CODICE_PRENOTAZIONE];
 	read_from_db_prenotazioni(&lista_prenotazioni,&count);
-	fprintf(stdout,"%s\n",lista_prenotazioni[0].assistito.nome);
 	if(count > 0) //Ci sono prenotazioni effettuate
 	{
-		fprintf(stdout,"Ci sono %d prenotazioni\n",count);
 		for(i=0;i<count;i++)
 		{
 			if(strcmp(data,lista_prenotazioni[i].data_appuntamento) == 0)
@@ -245,7 +243,6 @@ void invia_lista_prenotazioni(int sock, char *data)
 				trovato += 1;
 			}
 		}
-		fprintf(stdout,"trovato: %d\n",trovato);
 		FullWrite(sock,&trovato,sizeof(int));
 		if(trovato > 0)
 		{
@@ -255,9 +252,21 @@ void invia_lista_prenotazioni(int sock, char *data)
 		}
 	}
 	else
-	{
-		fprintf(stdout,"Non ci sono prenotazioni\n");
 		FullWrite(sock,&count,sizeof(int));
+	free(lista_prenotazioni);
+}
+
+void invia_lista_prenotazioni_senza_data(int sock)
+{
+	int i,count,trovato = 0;
+	struct prenotazione *lista_prenotazioni;
+	char codice_prenotazione[CODICE_PRENOTAZIONE];
+	read_from_db_prenotazioni(&lista_prenotazioni,&count);
+	FullWrite(sock,&count,sizeof(int));
+	if(count > 0) //Ci sono prenotazioni effettuate
+	{
+		for(i=0;i<count;i++)
+			FullWrite(sock,&lista_prenotazioni[i],sizeof(struct prenotazione));
 	}
 	free(lista_prenotazioni);
 }

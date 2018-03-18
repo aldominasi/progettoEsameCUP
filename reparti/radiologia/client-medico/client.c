@@ -24,15 +24,15 @@ int main(int argc, char *argv)
 	}
 	else
 		invia_operazione(sockfd,LISTA_TUTTE_PRENOTAZIONI);
-	ricevi_prenotazioni(&lista_prenotazioni,&count);
+	ricevi_prenotazioni(sockfd,&lista_prenotazioni,&count);
 	invia_operazione(sockfd,EXIT);
 	close(sockfd);
 	if(count > 0)
 	{
 		if(scelta == 'y')
-			ordina_per_orario(&lista_prenotazioni);
+			ordina_per_orario(&lista_prenotazioni, count);
 		else
-			ordina_per_giorno_e_orario(&lista_prenotazioni);
+			ordina_per_giorno_e_orario(&lista_prenotazioni, count);
 		visualizza_lista_prenotazioni(lista_prenotazioni,count);
 		free(lista_prenotazioni);
 	}

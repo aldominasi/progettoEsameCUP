@@ -50,8 +50,11 @@ int main(int argc, char *argv[])
 				else if(codice_comunicazione == LISTA_PRENOTAZIONI)
 				{
 					while(FullRead(connfd,&data,DATA) > 0);
-					fprintf(stdout,"%s\n",data);
 					invia_lista_prenotazioni(connfd,data);
+				}
+				else if(codice_comunicazione == LISTA_TUTTE_PRENOTAZIONI)
+				{
+					invia_lista_prenotazioni_senza_data(connfd);
 				}
 			}
 			close(connfd);
