@@ -49,3 +49,9 @@ struct appuntamento
 void scegli_reparto(int);
 void scegli_prestazioni_erogabili(int);
 void invia_operazione(int ,int );
+int scegli_operazione(int);
+void prenota(int );
+void cancella_prenotazione(int );
+void info_prenotazione(int );
+void lista_prenotazioni(int );
+void scegli_data_prenotazione(int );
