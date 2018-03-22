@@ -12,15 +12,16 @@ int main(int argc, char *argv[])
 	struct sockaddr_in servaddr;
 	char *addr = "127.0.0.1";
 	char data_prenotazioni[DATA], scelta;
+	char *reparto;
 	sockfd = Socket(AF_INET,SOCK_STREAM,0);
 	ImpostaIndirizzoClient(AF_INET,addr,PORTA,&servaddr);
 	Connessione(sockfd,servaddr);
-	scegli_reparto(sockfd);
+	scegli_reparto(sockfd,&reparto);
 	codice_operazione = scegli_operazione(sockfd);
 	switch(codice_operazione)
 	{
 		case PRENOTA:
-			prenota(sockfd);
+			prenota(sockfd,reparto);
 			break;
 		case CANCELLA_PRENOTAZIONE:
 			cancella_prenotazione(sockfd);

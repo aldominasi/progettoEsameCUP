@@ -46,12 +46,12 @@ struct appuntamento
 	char orario[ORARIO];
 };
 
-void scegli_reparto(int);
-void scegli_prestazioni_erogabili(int);
+void scegli_reparto(int, char **);
+void scegli_prestazioni_erogabili(int , char **);
 void invia_operazione(int ,int );
 int scegli_operazione(int);
-void prenota(int );
+void prenota(int , char *);
 void cancella_prenotazione(int );
 void info_prenotazione(int );
 void lista_prenotazioni(int );
-void scegli_data_prenotazione(int );
+void scegli_data_prenotazione(int , char **, char **);
