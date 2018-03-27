@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
 {
 	char prestazione_scelta[PRESTAZIONE], data[DATA];
 	int listenfd, connfd, codice_comunicazione = 9, length, enabled = 1;
+	struct prenotazione appuntamento_da_confermare;
 	pid_t pid;
 	struct sockaddr_in my_addr;
 	listenfd = Socket(AF_INET,SOCK_STREAM,0);
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
 		{
 			perror("fork");
 			close(connfd);
+			exit(1);
 		}
 		else if(pid > 0) //Padre
 			close(connfd);
@@ -55,6 +57,11 @@ int main(int argc, char *argv[])
 				else if(codice_comunicazione == LISTA_TUTTE_PRENOTAZIONI)
 				{
 					invia_lista_prenotazioni_senza_data(connfd);
+				}
+				else if(codice_comunicazione == CONFERMA_DATA)
+				{
+					while(FullRead(connfd,&appuntamento_da_confermare,sizeof(struct prenotazione)) > 0);
+					conferma_appuntamento(connfd, appuntamento_da_confermare);
 				}
 			}
 			close(connfd);

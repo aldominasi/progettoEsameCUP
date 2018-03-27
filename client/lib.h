@@ -32,20 +32,6 @@ struct prenotazione
 	char codice_prenotazione[CODICE_PRENOTAZIONE];
 };
 
-struct disponibilita
-{
-	char prestazione[PRESTAZIONE];
-	char data[DATA];
-	char orario[ORARIO];
-	char disponibile;
-};
-
-struct appuntamento
-{
-	char data[DATA];
-	char orario[ORARIO];
-};
-
 void scegli_reparto(int, char **);
 void scegli_prestazioni_erogabili(int , char **);
 void invia_operazione(int ,int );
@@ -54,4 +40,4 @@ void prenota(int , char *);
 void cancella_prenotazione(int );
 void info_prenotazione(int );
 void lista_prenotazioni(int );
-void scegli_data_prenotazione(int , char **, char **);
+int scegli_data_prenotazione(int , char **, char **);

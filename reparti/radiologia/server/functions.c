@@ -77,7 +77,7 @@ void invia_date_disponibili(int sock, char *prestazione)
 /*
 Coferma l'appuntamento salvandolo nel file delle prenotazioni e invia la conferma
 */
-void conferma_appuntamento(int sock, struct disponibilita prestazione_da_prenotare)
+void conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotare)
 {
 	int i,index = -1,confermato, n;
 	struct disponibilita *lista_disponibilita;
@@ -128,8 +128,10 @@ void inserisci_prenotazione_in_agenda(int sock)
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
-	//bisogna inserire nel posto giusto la nuova prenotazione
-	
+	n += 1;
+	lista_prenotazioni = (struct prenotazione *)realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
+	assegna_prenotazione(&lista_prenotazioni[n],prenotazione);
+	ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista_prenotazioni,n);
 	FullWrite(sock,&conferma,sizeof(int));
@@ -269,4 +271,76 @@ void invia_lista_prenotazioni_senza_data(int sock)
 			FullWrite(sock,&lista_prenotazioni[i],sizeof(struct prenotazione));
 	}
 	free(lista_prenotazioni);
+}
+
+void ordina_per_giorno_e_orario(struct prenotazione **lista_prenotazioni, int n)
+{
+	struct prenotazione temp;
+	int i,j;
+	for(i=1;i<n;i++)
+	{
+		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
+		j=i-1;
+		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j]->orario_appuntamento, lista_prenotazioni[i]->orario_appuntamento) == 2)) 
+		{
+			assegna_prenotazione(&(*lista_prenotazioni[j+1]),*lista_prenotazioni[j]);
+			j -= 1;
+		}
+		assegna_prenotazione(&(*lista_prenotazioni[j+1]),temp);
+	}
+}
+
+int confronta_giorno(char *prenotazioneA,char *prenotazioneB)
+{
+	int giornoA,giornoB,meseA,meseB,annoA,annoB;
+	converti_data(&giornoA,&meseA,&annoA,prenotazioneA);
+	converti_data(&giornoB,&meseB,&annoB,prenotazioneB);
+	if(annoA < annoB)
+		return 1;
+	else if(annoA > annoB)
+		return 2;
+	if(meseA < meseB)
+		return 1;
+	else if(meseA > meseB)
+		return 2;
+	if(giornoA < giornoB)
+		return 1;
+	else if(giornoA > giornoB)
+		return 2;
+	return 0;
+}
+
+void converti_data(int *giorno,int *mese, int *anno, char *data)
+{
+	char day[3],month[3],year[5];
+	if(data[0] == '0')
+		*giorno = (int)(data[1] - '0');
+	else
+	{
+		memcpy(day,&data[0],2);
+		day[2] = '\0';
+		*giorno = atoi(day);
+	}
+	if(data[3] == '0')
+		*mese = (int)(data[4] - '0');
+	else
+	{
+		memcpy(month,&data[3],2);
+		month[2] = '\0';
+		*mese = atoi(month);
+	}
+	memcpy(year,&data[6],4);
+	year[4] = '\0';
+	*anno = atoi(year);
+}
+
+void assegna_prenotazione(struct prenotazione *prenotazioneA,struct prenotazione prenotazioneB)
+{
+	strcpy(prenotazioneA->assistito.nome, prenotazioneB.assistito.nome);
+	strcpy(prenotazioneA->assistito.cognome, prenotazioneB.assistito.cognome);
+	strcpy(prenotazioneA->prestazione, prenotazioneB.prestazione);
+	strcpy(prenotazioneA->data_appuntamento, prenotazioneB.data_appuntamento);
+	strcpy(prenotazioneA->orario_appuntamento, prenotazioneB.orario_appuntamento);
+	strcpy(prenotazioneA->codice_ricetta, prenotazioneB.codice_ricetta);
+	strcpy(prenotazioneA->codice_prenotazione, prenotazioneB.codice_prenotazione);
 }
