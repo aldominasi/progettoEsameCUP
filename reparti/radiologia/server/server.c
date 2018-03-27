@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 		else //figlio
 		{
 			close(listenfd);
-			while(codice_comunicazione > 0)
+			do
 			{
 				while(FullRead(connfd,&codice_comunicazione,sizeof(int)) > 0);
 				//scelta dell'operazione in base al codice_comunicazione
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
 					while(FullRead(connfd,&appuntamento_da_confermare,sizeof(struct prenotazione)) > 0);
 					conferma_appuntamento(connfd, appuntamento_da_confermare);
 				}
-			}
+			} while(codice_comunicazione != EXIT);
 			close(connfd);
 			exit(0);
 		}

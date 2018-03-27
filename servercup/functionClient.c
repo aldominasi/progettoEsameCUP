@@ -1,4 +1,4 @@
-#include "frdwr."
+#include "frdwr.h"
 #include "lib.h"
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +35,7 @@ int invia_prestazioni_erogabili(int sock, char **prestazioni, int n)
 int scelta_data_orario_disponibile(int sock, struct appuntamento *date, int n)
 {
 	int i, scelta,count_orari=0;
-	Fullwrite(sock,&n,sizeof(int));
+	FullWrite(sock,&n,sizeof(int));
 	for(i=0;i<n;i++)
 		FullWrite(sock,&date[i],sizeof(struct appuntamento));
 	while(FullRead(sock,&scelta,sizeof(int)) > 0);
