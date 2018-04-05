@@ -1,19 +1,25 @@
 #include "lib.h"
 #include "frdwr.h"
 #include <string.h>
+#include <stdio.h>
 
 void prestazioni_erogabili(int sock, char ***prestazioni, int *count)
 {
 	int codice_operazione = PRESTAZIONI_EROGABILI,i,length;
+	char **lista;
 	FullWrite(sock,&codice_operazione,sizeof(int));
 	while(FullRead(sock,count,sizeof(int)) > 0);
-	*prestazioni = (char**)malloc(*count * sizeof(char*));
+	//fprintf(stdout,"%d\n",*count);
+	lista = (char**)malloc(*count * sizeof(char*));
 	for(i=0;i<*count;i++)
 	{
 		while(FullRead(sock,&length,sizeof(int)) > 0);
-		*prestazioni[i] = (char *)malloc(length*sizeof(char));
-		while(FullRead(sock,*prestazioni[i],length) > 0);
+		fprintf(stdout,"%d ",length);
+		lista[i] = (char *)malloc(PRESTAZIONE*sizeof(char));
+		while(FullRead(sock,lista[i],length) > 0);
+		fprintf(stdout,"%s\n",lista[i]);
 	}
+	*prestazioni = lista;
 }
 
 void ricevi_date_disponibili(int sock, struct appuntamento **date,int *count, struct prenotazione prenotazione)

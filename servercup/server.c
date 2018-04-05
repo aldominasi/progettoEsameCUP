@@ -8,13 +8,13 @@
 
 int main(int argc, char *argv[])
 {
-	int listenfd, connfd, enabled = 1, operazione, reparto,scelta_prestazione,n_prestazioni;
+	int listenfd, connfd, enabled = 1, operazione, reparto,scelta_prestazione,n_prestazioni, sockreparto;
 	int n_appuntamenti, scelta_appuntamento, appuntamento_confermato;
 	char **prestazioni;
 	struct appuntamento *appuntamenti;
 	struct prenotazione prenotazione;
 	pid_t pid;
-	struct sockaddr_in my_addr;
+	struct sockaddr_in my_addr, addr_reparto;
 	listenfd = Socket(AF_INET,SOCK_STREAM,0);
 	ImpostaIndirizzoAnyServer(AF_INET,PORTA,&my_addr);
 	srand((unsigned)time(NULL));
@@ -35,29 +35,37 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 		else if(pid > 0) //Padre
-			close(listenfd);
+			close(connfd);
 		else //Figlio
 		{
 			close(listenfd);
 			reparto = scelta_reparto(connfd);
+			sockreparto = Socket(AF_INET,SOCK_STREAM,0);
+			ImpostaIndirizzoClient(AF_INET,"127.0.0.1",reparto,&addr_reparto);
+			Connessione(sockreparto,addr_reparto);
 			do
 			{
 				while(FullRead(connfd,&operazione,sizeof(int)) > 0);
 				switch(operazione)
 				{
 					case PRENOTA:
-						//prestazioni_erogabili(sockreparto,&prestazioni,&n_prestazioni);
+						prestazioni_erogabili(sockreparto,&prestazioni,&n_prestazioni);
+						fprintf(stdout,"prestazione: %s\n",prestazioni[0]);
+						fprintf(stdout,"prestazione: %s\n",prestazioni[1]);
+						fprintf(stdout,"prestazione: %s\n",prestazioni[2]);
 						scelta_prestazione = invia_prestazioni_erogabili(connfd,prestazioni,n_prestazioni);
-						//ricevi_date_disponibili(sockreparto,&appuntamenti,&n_appuntamenti, prenotazione);
+						ricevi_date_disponibili(sockreparto,&appuntamenti,&n_appuntamenti, prenotazione);
 						scelta_appuntamento = scelta_data_orario_disponibile(connfd,appuntamenti,n_appuntamenti);
-						//appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
+						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
 						invia_conferma_data(connfd,appuntamento_confermato);
 						while(FullRead(connfd,&prenotazione,sizeof(struct prenotazione)) > 0);
 						genera_codice_prenotazione(prenotazione.codice_prenotazione);
 						FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
+						break;
 				}
 			} while(operazione != EXIT);
 			FullWrite(connfd,&operazione,sizeof(int));
+			close(sockreparto);
 			close(connfd);
 			exit(0);
 		}

@@ -56,6 +56,7 @@ struct appuntamento
 	char orario[ORARIO];
 };
 
+void prestazioni_erogabili(int , char ***, int *);
 int scelta_reparto(int);
 void read_from_db_reparti(struct reparti **, int *);
 int count_rows(int);

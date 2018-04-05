@@ -22,8 +22,10 @@ void invia_prestazioni_erogabili(int sock)
 	{
 		strcpy(temp,lista_disponibilita[0].prestazione);
 		strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
+		//fprintf(stdout,"%s\n",prestazioni[0]);
 		for(i=1;i<n;i++)
 		{
+			//fprintf(stdout,"proviamo %s\n",lista_disponibilita[i].prestazione);
 			if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
 			{
 				strcpy(temp,lista_disponibilita[i].prestazione);
@@ -35,11 +37,14 @@ void invia_prestazioni_erogabili(int sock)
 		//Invia le prestazioni
 		for(i=0;i<count;i++)
 		{
+			fprintf(stdout,"%s\n",prestazioni[i]);
 			length = (int)strlen(prestazioni[i]);
 			FullWrite(sock,&length,sizeof(int));
 			FullWrite(sock,prestazioni[i],length);
 		}
 	}
+	else
+		FullWrite(sock,&n,sizeof(int));
 	free(lista_disponibilita); //Dealloca la memoria
 }
 
@@ -86,7 +91,7 @@ void conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotar
 	{
 		for(i=0;i<n;i++)
 		{
-			if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data) == 0))
+			if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data_appuntamento) == 0))
 			{
 				index = i;
 				break;

@@ -5,7 +5,7 @@
 
 void scegli_reparto(int sock, char **reparto)
 {
-	int i, n, length, codice_scelto, length_reparto_scelto;
+	int i, n, length, codice_scelto=-1, length_reparto_scelto;
 	char **reparti;
 	while(FullRead(sock,&n,sizeof(int)) > 0);
 	reparti = (char **)malloc(n*sizeof(char *));
@@ -13,12 +13,13 @@ void scegli_reparto(int sock, char **reparto)
 	{
 		while(FullRead(sock,&length,sizeof(int)) > 0);
 		reparti[i] = (char *)malloc(length * sizeof(char));
-		while(FullRead(sock,&reparti[i],length) > 0);
+		while(FullRead(sock,reparti[i],length) > 0);
 		fprintf(stdout,"codice: %d reparto: %s\n",i+20,reparti[i]);
 	}
 	fprintf(stdout,"Inserire il codice relativo al reparto a cui si intende far riferimento: ");
-	while(codice_scelto < 0 && codice_scelto >= i)
+	while(codice_scelto < 0 || codice_scelto >= (i+20))
 		fscanf(stdin,"%d",&codice_scelto);
+	codice_scelto -= 20;
 	FullWrite(sock,&codice_scelto,sizeof(int));
 	length_reparto_scelto = ((int)strlen(reparti[codice_scelto])) + 1;
 	*reparto =  (char *)malloc(length_reparto_scelto*sizeof(char));
@@ -37,16 +38,18 @@ void scegli_prestazioni_erogabili(int sock, char **prestazione)
 	for(i=0;i<n;i++)
 	{
 		while(FullRead(sock,&length,sizeof(int)) > 0);
+		fprintf(stdout,"prova %d\n",length);
 		prestazioni[i] = (char *)malloc(length*sizeof(char));
-		while(FullRead(sock,&prestazioni[i],length) > 0);
+		while(FullRead(sock,prestazioni[i],length) > 0);
 		fprintf(stdout,"codice: %d reparto: %s\n",i+40,prestazioni[i]);
 	}
 	fprintf(stdout,"Inserire il codice relativo alla prestazione a cui si intende far riferimento: ");
 	while(codice_scelto < 0 && codice_scelto >= i)
 		fscanf(stdin,"%d",&codice_scelto);
 	FullWrite(sock,&codice_scelto,sizeof(int));
-	*prestazione = (char *)malloc(strlen(prestazioni[codice_scelto])*sizeof(char));
-	strcpy(*prestazione,prestazioni[codice_scelto]);
+	//*prestazione = (char *)malloc(strlen(prestazioni[codice_scelto])*sizeof(char));
+	*prestazione = prestazioni[codice_scelto];
+	//strcpy(*prestazione,prestazioni[codice_scelto]);
 	for(i=0;i<n;i++)
 		free(prestazioni[i]);
 	free(prestazioni);

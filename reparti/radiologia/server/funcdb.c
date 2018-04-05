@@ -8,10 +8,11 @@
 const char *FILEDB = "disponibilita.csv";
 const char *FILEDB_PRENOTAZIONI = "prenotazioni.csv";
 
-void read_from_db(struct disponibilita **lista_disponibilita, int *lines)
+void read_from_db(struct disponibilita **lista, int *lines)
 {
 	int i, fd_file, j, n;
 	char buff;
+	struct disponibilita *lista_disponibilita;
 	if((fd_file = open(FILEDB, O_RDONLY)) == -1)
 	{
 		perror("open");
@@ -19,49 +20,55 @@ void read_from_db(struct disponibilita **lista_disponibilita, int *lines)
 	}
 	*lines = count_lines(fd_file);
 	lseek(fd_file,0L,SEEK_SET);
-	*lista_disponibilita = (struct disponibilita *)malloc(*lines * sizeof(struct disponibilita));
+	lista_disponibilita = malloc(*lines * sizeof(struct disponibilita *));
 	if(*lines > 0)
 	{
 		for(i=0;i<*lines;i++)
 		{
+			//lista_disponibilita[i] = malloc(sizeof(struct disponibilita));
 			j=0;
 			read(fd_file,&buff,1);
 			while(buff != ';')
 			{
-				lista_disponibilita[i]->prestazione[j] = buff;
+				lista_disponibilita[i].prestazione[j] = buff;
 				read(fd_file, &buff,1);
 				j++;
 			}
-			lista_disponibilita[i]->prestazione[j] = '\0';
+			lista_disponibilita[i].prestazione[j] = '\0';
+			//fprintf(stdout,"%s\n",lista_disponibilita[i].prestazione);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_disponibilita[i]->data[j] = buff;
+				lista_disponibilita[i].data[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_disponibilita[i]->data[j] = '\0';
+			lista_disponibilita[i].data[j] = '\0';
+			//fprintf(stdout,"%s ",lista_disponibilita[i].data);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_disponibilita[i]->orario[j] = buff;
+				lista_disponibilita[i].orario[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_disponibilita[i]->orario[j] = '\0';
+			lista_disponibilita[i].orario[j] = '\0';
+			//fprintf(stdout,"%s ",lista_disponibilita[i].orario);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != '\n')
 			{
 				if(buff != ';')
-					lista_disponibilita[i]->disponibile = buff;
+					lista_disponibilita[i].disponibile = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
+			//fprintf(stdout,"%c\n",lista_disponibilita[i].disponibile);
 		}
 	}
+	*lista = lista_disponibilita;
 	close(fd_file);
 }
 
