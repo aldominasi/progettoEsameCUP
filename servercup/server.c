@@ -2,6 +2,7 @@
 #include "frdwr.h"
 #include "lib.h"
 #include <time.h>
+#include <string.h>
 
 #define PORTA 3000
 #define CLIENT_QUEUE 100
@@ -50,10 +51,8 @@ int main(int argc, char *argv[])
 				{
 					case PRENOTA:
 						prestazioni_erogabili(sockreparto,&prestazioni,&n_prestazioni);
-						fprintf(stdout,"prestazione: %s\n",prestazioni[0]);
-						fprintf(stdout,"prestazione: %s\n",prestazioni[1]);
-						fprintf(stdout,"prestazione: %s\n",prestazioni[2]);
 						scelta_prestazione = invia_prestazioni_erogabili(connfd,prestazioni,n_prestazioni);
+						strcpy(prenotazione.prestazione,prestazioni[scelta_prestazione]);
 						ricevi_date_disponibili(sockreparto,&appuntamenti,&n_appuntamenti, prenotazione);
 						scelta_appuntamento = scelta_data_orario_disponibile(connfd,appuntamenti,n_appuntamenti);
 						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);

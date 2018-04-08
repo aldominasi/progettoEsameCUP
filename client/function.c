@@ -38,14 +38,14 @@ void scegli_prestazioni_erogabili(int sock, char **prestazione)
 	for(i=0;i<n;i++)
 	{
 		while(FullRead(sock,&length,sizeof(int)) > 0);
-		fprintf(stdout,"prova %d\n",length);
 		prestazioni[i] = (char *)malloc(length*sizeof(char));
 		while(FullRead(sock,prestazioni[i],length) > 0);
-		fprintf(stdout,"codice: %d reparto: %s\n",i+40,prestazioni[i]);
+		fprintf(stdout,"codice: %d prestazione: %s\n",i+40,prestazioni[i]);
 	}
 	fprintf(stdout,"Inserire il codice relativo alla prestazione a cui si intende far riferimento: ");
-	while(codice_scelto < 0 && codice_scelto >= i)
+	while(codice_scelto < 40 || codice_scelto > (40+i))
 		fscanf(stdin,"%d",&codice_scelto);
+	codice_scelto -= 40;
 	FullWrite(sock,&codice_scelto,sizeof(int));
 	//*prestazione = (char *)malloc(strlen(prestazioni[codice_scelto])*sizeof(char));
 	*prestazione = prestazioni[codice_scelto];
@@ -72,11 +72,13 @@ int scegli_operazione(int sock)
 	return scelta;
 }
 
-int scegli_data_prenotazione(int sock, char **dataprenotazione, char **orarioprenotazione)
+int scegli_data_prenotazione(int sock,struct appuntamento *dataprenotazione)
 {
 	int i,length,count,scelta=-1,confermato;
 	struct appuntamento *appuntamenti;
+	fprintf(stdout,"scegli_data_prenotazione\n");
 	while(FullRead(sock,&count,sizeof(int)) > 0);
+	fprintf(stdout,"scegli_data_prenotazione %d\n",count);
 	if(count > 0)
 	{
 		fprintf(stdout,"Digita il codice relativo all'appuntamento che vuoi prenotare\n");
@@ -87,11 +89,12 @@ int scegli_data_prenotazione(int sock, char **dataprenotazione, char **orariopre
 			fprintf(stdout,"data: %s ora: %s codice: %d\n",appuntamenti[i].data,appuntamenti[i].orario,i);
 		}
 		fprintf(stdout,"Digita il codice: ");
-		while(scelta < 0 && scelta >= i)
+		while(scelta < 0 || scelta >= i)
 			fscanf(stdin,"%d",&scelta);
 		FullWrite(sock,&scelta,sizeof(int));
-		strcpy(*dataprenotazione,appuntamenti[scelta].data);
-		strcpy(*orarioprenotazione,appuntamenti[scelta].orario);
+		
+		strcpy(dataprenotazione->data,appuntamenti[scelta].data);
+		strcpy(dataprenotazione->orario,appuntamenti[scelta].orario);
 		while(FullRead(sock,&confermato,sizeof(int)) > 0);
 		return confermato;
 	}
@@ -106,21 +109,23 @@ int scegli_data_prenotazione(int sock, char **dataprenotazione, char **orariopre
 void prenota(int sock, char *reparto)
 {
 	int conferma = 0, length_ricetta;
-	char *data_prenotazione, *orario_prenotazione, *prestazione;
+	char *prestazione;
 	struct prenotazione datiprenotazione;
+	struct appuntamento datiappuntamento;
 	scegli_prestazioni_erogabili(sock,&prestazione);
 	strcpy(datiprenotazione.prestazione,prestazione);
 	while(conferma == 0)
 	{
-		if(scegli_data_prenotazione(sock,&data_prenotazione,&orario_prenotazione) > -1) //è possibile continuare la prenotazione
+		fprintf(stdout,"attendo scegli_data_prenotazione\n");
+		if(scegli_data_prenotazione(sock,&datiappuntamento) > -1) //è possibile continuare la prenotazione
 			while(FullRead(sock,&conferma,sizeof(int)) > 0);
 		else
 			conferma = -1;
 	}
 	if(conferma != -1)
 	{
-		strcpy(datiprenotazione.data_appuntamento,data_prenotazione);
-		strcpy(datiprenotazione.orario_appuntamento,orario_prenotazione);
+		strcpy(datiprenotazione.data_appuntamento,datiappuntamento.data);
+		strcpy(datiprenotazione.orario_appuntamento,datiappuntamento.orario);
 		fprintf(stdout,"Digita il nome dell'assistito: ");
 		fscanf(stdin,"%s",datiprenotazione.assistito.nome);
 		fprintf(stdout,"Digita il cognome dell'assistito: ");

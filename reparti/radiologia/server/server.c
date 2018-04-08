@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 				{
 					while(FullRead(connfd,&length,sizeof(int)) > 0);
 					while(FullRead(connfd,prestazione_scelta,length) > 0);
+					fprintf(stdout,"prestazione scelta %s\n",prestazione_scelta);
 					invia_date_disponibili(connfd,prestazione_scelta);
 				}
 				else if(codice_comunicazione == LISTA_PRENOTAZIONI)

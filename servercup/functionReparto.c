@@ -14,7 +14,6 @@ void prestazioni_erogabili(int sock, char ***prestazioni, int *count)
 	for(i=0;i<*count;i++)
 	{
 		while(FullRead(sock,&length,sizeof(int)) > 0);
-		fprintf(stdout,"%d ",length);
 		lista[i] = (char *)malloc(PRESTAZIONE*sizeof(char));
 		while(FullRead(sock,lista[i],length) > 0);
 		fprintf(stdout,"%s\n",lista[i]);
@@ -24,17 +23,21 @@ void prestazioni_erogabili(int sock, char ***prestazioni, int *count)
 
 void ricevi_date_disponibili(int sock, struct appuntamento **date,int *count, struct prenotazione prenotazione)
 {
-	int i,length;
+	int i,length, operazione = DATE_DISPONIBILI;
 	struct appuntamento appuntamento_ricevuto;
+	struct appuntamento *appuntamenti;
+	fprintf(stdout,"ricevi_date_appuntamento %s\n",prenotazione.prestazione);
 	length = strlen(prenotazione.prestazione)+1;
+	FullWrite(sock,&operazione,sizeof(int));
 	FullWrite(sock,&length,sizeof(int));
 	FullWrite(sock,prenotazione.prestazione,length);
-	while(FullRead(sock,&count,sizeof(int)) > 0);
+	while(FullRead(sock,count,sizeof(int)) > 0);
 	if (*count > 0)
 	{
-		*date = (struct appuntamento *)malloc(*count * sizeof(struct appuntamento));
+		appuntamenti = (struct appuntamento *)malloc(*count * sizeof(struct appuntamento));
 		for(i=0;i<*count;i++)
-			while(FullRead(sock,&appuntamento_ricevuto,sizeof(struct appuntamento)) > 0);
+			while(FullRead(sock,&appuntamenti[i],sizeof(struct appuntamento)) > 0);
+		*date = appuntamenti;
 	}
 }
 

@@ -25,12 +25,12 @@ int invia_prestazioni_erogabili(int sock, char **prestazioni, int n)
 	FullWrite(sock,&n,sizeof(int));
 	for(i=0;i<n;i++)
 	{
-		fprintf(stdout,"prova %s",prestazioni[i]);
 		length = strlen(prestazioni[i]) + 1;
 		FullWrite(sock,&length,sizeof(int));
 		FullWrite(sock,prestazioni[i],length);
 	}
 	while(FullRead(sock,&scelta,sizeof(int)) > 0);
+	fprintf(stdout,"scelta %s\n",prestazioni[scelta]);
 	return scelta;
 }
 
