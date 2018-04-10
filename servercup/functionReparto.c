@@ -43,7 +43,9 @@ void ricevi_date_disponibili(int sock, struct appuntamento **date,int *count, st
 
 int conferma_appuntamento(int sock, struct prenotazione prenotazione_da_confermare)
 {
-	int risposta;
+	int risposta,operazione = CONFERMA_DATA;
+	fprintf(stdout,"conferma appuntamento %s %s %s\n",prenotazione_da_confermare.prestazione,prenotazione_da_confermare.data_appuntamento,prenotazione_da_confermare.orario_appuntamento);
+	FullWrite(sock,&operazione,sizeof(int));
 	FullWrite(sock,&prenotazione_da_confermare,sizeof(struct prenotazione));
 	while(FullRead(sock,&risposta,sizeof(int)) > 0);
 	if (risposta == 1)

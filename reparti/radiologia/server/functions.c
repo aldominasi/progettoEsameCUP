@@ -37,7 +37,7 @@ void invia_prestazioni_erogabili(int sock)
 		//Invia le prestazioni
 		for(i=0;i<count;i++)
 		{
-			fprintf(stdout,"%s\n",prestazioni[i]);
+			//fprintf(stdout,"%s\n",prestazioni[i]);
 			length = (int)strlen(prestazioni[i]);
 			FullWrite(sock,&length,sizeof(int));
 			FullWrite(sock,prestazioni[i],length);
@@ -91,7 +91,7 @@ void conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotar
 	{
 		for(i=0;i<n;i++)
 		{
-			if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data_appuntamento) == 0))
+			if((strcmp(lista_disponibilita[i].prestazione, prestazione_da_prenotare.prestazione) == 0) && (strcmp(lista_disponibilita[i].data,prestazione_da_prenotare.data_appuntamento) == 0) && (strcmp(lista_disponibilita[i].orario,prestazione_da_prenotare.orario_appuntamento) == 0))
 			{
 				index = i;
 				break;

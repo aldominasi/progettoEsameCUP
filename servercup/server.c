@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 						strcpy(prenotazione.prestazione,prestazioni[scelta_prestazione]);
 						ricevi_date_disponibili(sockreparto,&appuntamenti,&n_appuntamenti, prenotazione);
 						scelta_appuntamento = scelta_data_orario_disponibile(connfd,appuntamenti,n_appuntamenti);
+						strcpy(prenotazione.data_appuntamento,appuntamenti[scelta_appuntamento].data);
+						strcpy(prenotazione.orario_appuntamento,appuntamenti[scelta_appuntamento].orario);
 						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
 						invia_conferma_data(connfd,appuntamento_confermato);
 						while(FullRead(connfd,&prenotazione,sizeof(struct prenotazione)) > 0);

@@ -69,6 +69,7 @@ void read_from_db(struct disponibilita **lista, int *lines)
 		}
 	}
 	*lista = lista_disponibilita;
+	//free(lista_disponibilita);
 	close(fd_file);
 }
 
@@ -83,6 +84,7 @@ int write_into_db(struct disponibilita *lista_disponibilita, int n)
 	}
 	for(i = 0;i<n;i++)
 	{
+/*
 		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
 		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].prestazione)+1);
 		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
@@ -91,6 +93,15 @@ int write_into_db(struct disponibilita *lista_disponibilita, int n)
 		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].orario)+1);
 		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
 		FullWrite(fd_file,buff,2);
+*/
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
+		fprintf(stdout,"%s",buff);
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
+		fprintf(stdout,"%s",buff);
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
+		fprintf(stdout,"%s",buff);
+		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
+		fprintf(stdout,"%s",buff);
 	}
 	close(fd_file);
 	return 1;
