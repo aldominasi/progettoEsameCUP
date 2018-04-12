@@ -84,24 +84,24 @@ int write_into_db(struct disponibilita *lista_disponibilita, int n)
 	}
 	for(i = 0;i<n;i++)
 	{
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
+		FullWrite(fd_file,buff,strlen(buff));
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
+		FullWrite(fd_file,buff,strlen(buff));
+		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
+		FullWrite(fd_file,buff,strlen(buff));
+		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
+		FullWrite(fd_file,buff,strlen(buff));
 /*
 		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].prestazione)+1);
+		fprintf(stdout,"%s",buff);
 		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].data)+1);
+		fprintf(stdout,"%s",buff);
 		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
-		FullWrite(fd_file,buff,strlen(lista_disponibilita[i].orario)+1);
+		fprintf(stdout,"%s",buff);
 		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
-		FullWrite(fd_file,buff,2);
+		fprintf(stdout,"%s",buff);
 */
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
-		fprintf(stdout,"%s",buff);
 	}
 	close(fd_file);
 	return 1;
@@ -206,19 +206,19 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 	for(i = 0;i<count;i++)
 	{
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.nome);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].assistito.nome)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.cognome);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].assistito.cognome)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].prestazione);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].prestazione)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].data_appuntamento);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].data_appuntamento)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].orario_appuntamento);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].orario_appuntamento)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].codice_ricetta);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].codice_ricetta)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%s\n",lista_prenotazioni[i].codice_prenotazione);
-		FullWrite(fd_file,buff,strlen(lista_prenotazioni[i].codice_prenotazione)+1);
+		FullWrite(fd_file,buff,strlen(buff));
 	}
 	close(fd_file);
 	return 1;

@@ -48,10 +48,7 @@ int conferma_appuntamento(int sock, struct prenotazione prenotazione_da_conferma
 	FullWrite(sock,&operazione,sizeof(int));
 	FullWrite(sock,&prenotazione_da_confermare,sizeof(struct prenotazione));
 	while(FullRead(sock,&risposta,sizeof(int)) > 0);
-	if (risposta == 1)
-		return 1;
-	else
-		return 0;
+	return risposta;
 }
 
 void invia_prenotazione_completa(int sock, struct prenotazione prenotazione)

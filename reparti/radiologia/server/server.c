@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
 	char prestazione_scelta[PRESTAZIONE], data[DATA];
-	int listenfd, connfd, codice_comunicazione = 9, length, enabled = 1;
+	int listenfd, connfd, codice_comunicazione = 9, length, enabled = 1, confermato;
 	struct prenotazione appuntamento_da_confermare;
 	pid_t pid;
 	struct sockaddr_in my_addr;
@@ -62,7 +62,9 @@ int main(int argc, char *argv[])
 				else if(codice_comunicazione == CONFERMA_DATA)
 				{
 					while(FullRead(connfd,&appuntamento_da_confermare,sizeof(struct prenotazione)) > 0);
-					conferma_appuntamento(connfd, appuntamento_da_confermare);
+					confermato = conferma_appuntamento(connfd, appuntamento_da_confermare);
+					if(confermato == 1)
+						inserisci_prenotazione_in_agenda(connfd);
 				}
 			} while(codice_comunicazione != EXIT);
 			close(connfd);

@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
 						while(FullRead(connfd,&prenotazione,sizeof(struct prenotazione)) > 0);
 						genera_codice_prenotazione(prenotazione.codice_prenotazione);
 						FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
+						FullWrite(sockreparto,&prenotazione,sizeof(struct prenotazione));
 						break;
 				}
 			} while(operazione != EXIT);

@@ -82,7 +82,7 @@ void invia_date_disponibili(int sock, char *prestazione)
 /*
 Coferma l'appuntamento salvandolo nel file delle prenotazioni e invia la conferma
 */
-void conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotare)
+int conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotare)
 {
 	int i,index = -1,confermato, n;
 	struct disponibilita *lista_disponibilita;
@@ -124,6 +124,7 @@ void conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotar
 		FullWrite(sock,&confermato,sizeof(int));
 	}
 	free(lista_disponibilita);
+	return confermato;
 }
 
 void inserisci_prenotazione_in_agenda(int sock)
@@ -139,7 +140,7 @@ void inserisci_prenotazione_in_agenda(int sock)
 	ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista_prenotazioni,n);
-	FullWrite(sock,&conferma,sizeof(int));
+	//FullWrite(sock,&conferma,sizeof(int));
 }
 
 

@@ -96,6 +96,7 @@ int scegli_data_prenotazione(int sock,struct appuntamento *dataprenotazione)
 		strcpy(dataprenotazione->data,appuntamenti[scelta].data);
 		strcpy(dataprenotazione->orario,appuntamenti[scelta].orario);
 		while(FullRead(sock,&confermato,sizeof(int)) > 0);
+		fprintf(stdout,"confermato: %d\n",confermato);
 		return confermato;
 	}
 	else
@@ -117,12 +118,9 @@ void prenota(int sock, char *reparto)
 	while(conferma == 0)
 	{
 		fprintf(stdout,"attendo scegli_data_prenotazione\n");
-		if(scegli_data_prenotazione(sock,&datiappuntamento) > -1) //è possibile continuare la prenotazione
-			while(FullRead(sock,&conferma,sizeof(int)) > 0);
-		else
-			conferma = -1;
+		conferma = scegli_data_prenotazione(sock,&datiappuntamento);
 	}
-	if(conferma != -1)
+	if(conferma == 1)
 	{
 		strcpy(datiprenotazione.data_appuntamento,datiappuntamento.data);
 		strcpy(datiprenotazione.orario_appuntamento,datiappuntamento.orario);
