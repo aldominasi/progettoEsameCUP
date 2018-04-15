@@ -130,9 +130,9 @@ void read_from_db_prenotazioni(struct prenotazione **lista_prenotazioni, int *li
 	}
 	*lines = count_lines(fd_file);
 	lseek(fd_file,0L,SEEK_SET);
-	*lista_prenotazioni = (struct prenotazione *)malloc(*lines * sizeof(struct prenotazione));
 	if(*lines > 0)
 	{
+		*lista_prenotazioni = (struct prenotazione *)malloc(*lines * sizeof(struct prenotazione));
 		for(i=0;i<*lines;i++)
 		{
 			j=0;
@@ -203,6 +203,7 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 		perror("open");
 		return 0;
 	}
+	printf("write_into_db_prenotazioni\n");
 	for(i = 0;i<count;i++)
 	{
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.nome);

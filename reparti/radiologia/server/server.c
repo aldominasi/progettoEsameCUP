@@ -67,9 +67,11 @@ int main(int argc, char *argv[])
 						inserisci_prenotazione_in_agenda(connfd);
 				}
 			} while(codice_comunicazione != EXIT);
+			printf("EXIT\n");
 			close(connfd);
 			exit(0);
 		}
 	}
+	close(listenfd);
 	exit(0);
 }

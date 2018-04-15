@@ -134,9 +134,14 @@ void inserisci_prenotazione_in_agenda(int sock)
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
+	printf("numero di prenotazioni: %d\n",n);
 	n += 1;
-	lista_prenotazioni = (struct prenotazione *)realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
-	assegna_prenotazione(&lista_prenotazioni[n],prenotazione);
+	if(n>1)
+		lista_prenotazioni = (struct prenotazione *)realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
+	else
+		lista_prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
+	assegna_prenotazione(&lista_prenotazioni[n-1],prenotazione);
+		printf("Prenotazione: %s %s\n",lista_prenotazioni[0].prestazione, lista_prenotazioni[0].data_appuntamento);
 	ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista_prenotazioni,n);
