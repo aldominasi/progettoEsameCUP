@@ -52,8 +52,10 @@ void invia_conferma_data(int sock,int conferma)
 void genera_codice_prenotazione(char *codice)
 {
 	char i;
-	for(i=0;i<CODICE_PRENOTAZIONE;i++)
+	for(i=0;i<CODICE_PRENOTAZIONE-1;i++)
 		codice[i] = (char)((rand()%10)+48);
+	codice[CODICE_PRENOTAZIONE-1] = '\0';
+	printf("codice generato: %s\n", codice);
 }
 
 void invia_codice_prenotazione_client(int sock,char *codice)

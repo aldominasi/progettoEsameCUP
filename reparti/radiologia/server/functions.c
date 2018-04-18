@@ -136,14 +136,16 @@ void inserisci_prenotazione_in_agenda(int sock)
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
 	printf("numero di prenotazioni: %d\n",n);
 	n += 1;
+	printf("prenotazione B %s\n",prenotazione.codice_prenotazione);
 	if(n>1)
 		lista_prenotazioni = (struct prenotazione *)realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
 	else
 		lista_prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
 	assegna_prenotazione(&lista_prenotazioni[n-1],prenotazione);
-		printf("Prenotazione: %s %s\n",lista_prenotazioni[0].prestazione, lista_prenotazioni[0].data_appuntamento);
 	ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
+	for(i=0;i<n;i++)
+		printf("Prenotazione: %s %s %s\n",lista_prenotazioni[i].prestazione, lista_prenotazioni[i].data_appuntamento, lista_prenotazioni[i].orario_appuntamento);
 	write_into_db_prenotazioni(lista_prenotazioni,n);
 	//FullWrite(sock,&conferma,sizeof(int));
 }
@@ -292,12 +294,15 @@ void ordina_per_giorno_e_orario(struct prenotazione **lista_prenotazioni, int n)
 	{
 		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
 		j=i-1;
-		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j]->orario_appuntamento, lista_prenotazioni[i]->orario_appuntamento) == 2)) 
+		printf("for qui\n");
+		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j]->data_appuntamento, lista_prenotazioni[i]->data_appuntamento) == 2)) 
 		{
+			printf("anke qui\n");
 			assegna_prenotazione(&(*lista_prenotazioni[j+1]),*lista_prenotazioni[j]);
 			j -= 1;
 		}
 		assegna_prenotazione(&(*lista_prenotazioni[j+1]),temp);
+		printf("qui\n");
 	}
 }
 
@@ -347,11 +352,19 @@ void converti_data(int *giorno,int *mese, int *anno, char *data)
 
 void assegna_prenotazione(struct prenotazione *prenotazioneA,struct prenotazione prenotazioneB)
 {
+	printf("assegna prenotazione 1234\n");
 	strcpy(prenotazioneA->assistito.nome, prenotazioneB.assistito.nome);
+	printf("%s\n",prenotazioneA->assistito.nome);
 	strcpy(prenotazioneA->assistito.cognome, prenotazioneB.assistito.cognome);
+	printf("%s\n",prenotazioneA->assistito.cognome);
 	strcpy(prenotazioneA->prestazione, prenotazioneB.prestazione);
+	printf("%s\n",prenotazioneA->prestazione);
 	strcpy(prenotazioneA->data_appuntamento, prenotazioneB.data_appuntamento);
+	printf("%s\n",prenotazioneA->data_appuntamento);
 	strcpy(prenotazioneA->orario_appuntamento, prenotazioneB.orario_appuntamento);
+	printf("%s\n",prenotazioneA->orario_appuntamento);
 	strcpy(prenotazioneA->codice_ricetta, prenotazioneB.codice_ricetta);
+	printf("%s\n",prenotazioneA->codice_ricetta);
 	strcpy(prenotazioneA->codice_prenotazione, prenotazioneB.codice_prenotazione);
+	printf("%s\n",prenotazioneB.codice_prenotazione);
 }

@@ -20,9 +20,9 @@ void read_from_db(struct disponibilita **lista, int *lines)
 	}
 	*lines = count_lines(fd_file);
 	lseek(fd_file,0L,SEEK_SET);
-	lista_disponibilita = malloc(*lines * sizeof(struct disponibilita *));
 	if(*lines > 0)
 	{
+		lista_disponibilita = malloc(*lines * sizeof(struct disponibilita *));
 		for(i=0;i<*lines;i++)
 		{
 			//lista_disponibilita[i] = malloc(sizeof(struct disponibilita));
@@ -119,10 +119,11 @@ int count_lines(int fd)
 	return count;
 }
 
-void read_from_db_prenotazioni(struct prenotazione **lista_prenotazioni, int *lines)
+void read_from_db_prenotazioni(struct prenotazione **lista_prenotazione, int *lines)
 {
 	int i, fd_file, j, n;
 	char buff;
+	struct prenotazione *lista_prenotazioni;
 	if((fd_file = open(FILEDB_PRENOTAZIONI, O_RDONLY)) == -1)
 	{
 		perror("open");
@@ -132,65 +133,66 @@ void read_from_db_prenotazioni(struct prenotazione **lista_prenotazioni, int *li
 	lseek(fd_file,0L,SEEK_SET);
 	if(*lines > 0)
 	{
-		*lista_prenotazioni = (struct prenotazione *)malloc(*lines * sizeof(struct prenotazione));
+		lista_prenotazioni = malloc(*lines * sizeof(struct prenotazione));
 		for(i=0;i<*lines;i++)
 		{
 			j=0;
 			read(fd_file,&buff,1);
 			while(buff != ';')
 			{
-				lista_prenotazioni[i]->assistito.nome[j] = buff;
+				lista_prenotazioni[i].assistito.nome[j] = buff;
 				read(fd_file, &buff,1);
 				j++;
 			}
-			lista_prenotazioni[i]->assistito.nome[j] = '\0';
+			lista_prenotazioni[i].assistito.nome[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_prenotazioni[i]->assistito.cognome[j] = buff;
+				lista_prenotazioni[i].assistito.cognome[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_prenotazioni[i]->assistito.cognome[j] = '\0';
+			lista_prenotazioni[i].assistito.cognome[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_prenotazioni[i]->prestazione[j] = buff;
+				lista_prenotazioni[i].prestazione[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_prenotazioni[i]->prestazione[j] = '\0';
+			lista_prenotazioni[i].prestazione[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_prenotazioni[i]->data_appuntamento[j] = buff;
+				lista_prenotazioni[i].data_appuntamento[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_prenotazioni[i]->data_appuntamento[j] = '\0';
+			lista_prenotazioni[i].data_appuntamento[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
 			{
-				lista_prenotazioni[i]->codice_ricetta[j] = buff;
+				lista_prenotazioni[i].codice_ricetta[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
-			lista_prenotazioni[i]->codice_ricetta[j] = '\0';
+			lista_prenotazioni[i].codice_ricetta[j] = '\0';
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != '\n')
 			{
 				if(buff != ';')
-					lista_prenotazioni[i]->codice_prenotazione[j] = buff;
+					lista_prenotazioni[i].codice_prenotazione[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
 			}
 		}
 	}
+	*lista_prenotazione = lista_prenotazioni;
 	close(fd_file);
 }
 

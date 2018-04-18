@@ -61,8 +61,10 @@ int main(int argc, char *argv[])
 						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
 						invia_conferma_data(connfd,appuntamento_confermato);
 						while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0);
-						for(i=0;i<CODICE_PRENOTAZIONE;i++)
+						for(i=0;i<CODICE_PRENOTAZIONE-1;i++)
 							prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
+						prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
+						printf("codice generato: %s\n",prenotazione.codice_prenotazione);
 						snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);
 						snprintf(prenotazione.assistito.cognome,sizeof(prenotazione.assistito.cognome),"%s",dati_prenotazione_client.assistito.cognome);
 						snprintf(prenotazione.codice_ricetta,sizeof(prenotazione.codice_ricetta),"%s",dati_prenotazione_client.codice_ricetta);
@@ -73,7 +75,7 @@ int main(int argc, char *argv[])
 						break;
 				}
 			} while(operazione != EXIT);
-			FullWrite(connfd,&operazione,sizeof(int));
+			FullWrite(sockreparto,&operazione,sizeof(int));
 			printf("EXIT\n");
 			close(sockreparto);
 			close(connfd);
