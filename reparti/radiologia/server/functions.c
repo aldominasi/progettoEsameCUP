@@ -134,18 +134,13 @@ void inserisci_prenotazione_in_agenda(int sock)
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
-	printf("numero di prenotazioni: %d\n",n);
 	n += 1;
-	printf("prenotazione B %s\n",prenotazione.codice_prenotazione);
+	printf("prenotazione B %d\n",n);
 	if(n>1)
-		lista_prenotazioni = (struct prenotazione *)realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
-	else
-		lista_prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
+		lista_prenotazioni = realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
 	assegna_prenotazione(&lista_prenotazioni[n-1],prenotazione);
-	ordina_per_giorno_e_orario(&lista_prenotazioni,n);
+	//ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
-	for(i=0;i<n;i++)
-		printf("Prenotazione: %s %s %s\n",lista_prenotazioni[i].prestazione, lista_prenotazioni[i].data_appuntamento, lista_prenotazioni[i].orario_appuntamento);
 	write_into_db_prenotazioni(lista_prenotazioni,n);
 	//FullWrite(sock,&conferma,sizeof(int));
 }
@@ -292,6 +287,8 @@ void ordina_per_giorno_e_orario(struct prenotazione **lista_prenotazioni, int n)
 	int i,j;
 	for(i=1;i<n;i++)
 	{
+		printf("il for inizia qui %d\n",n);
+		printf("ordinamento: %s\n",lista_prenotazioni[i]->assistito.nome);
 		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
 		j=i-1;
 		printf("for qui\n");
@@ -353,7 +350,7 @@ void converti_data(int *giorno,int *mese, int *anno, char *data)
 void assegna_prenotazione(struct prenotazione *prenotazioneA,struct prenotazione prenotazioneB)
 {
 	printf("assegna prenotazione 1234\n");
-	strcpy(prenotazioneA->assistito.nome, prenotazioneB.assistito.nome);
+	snprintf(prenotazioneA->assistito.nome, sizeof(prenotazioneA->assistito.nome), "%s",prenotazioneB.assistito.nome);
 	printf("%s\n",prenotazioneA->assistito.nome);
 	strcpy(prenotazioneA->assistito.cognome, prenotazioneB.assistito.cognome);
 	printf("%s\n",prenotazioneA->assistito.cognome);
