@@ -76,9 +76,7 @@ int scegli_data_prenotazione(int sock,struct appuntamento *dataprenotazione)
 {
 	int i,length,count,scelta=-1,confermato;
 	struct appuntamento *appuntamenti;
-	fprintf(stdout,"scegli_data_prenotazione\n");
 	while(FullRead(sock,&count,sizeof(int)) > 0);
-	fprintf(stdout,"scegli_data_prenotazione %d\n",count);
 	if(count > 0)
 	{
 		fprintf(stdout,"Digita il codice relativo all'appuntamento che vuoi prenotare\n");

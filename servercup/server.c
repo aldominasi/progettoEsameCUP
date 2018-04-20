@@ -52,28 +52,29 @@ int main(int argc, char *argv[])
 					case PRENOTA:
 						prestazioni_erogabili(sockreparto,&prestazioni,&n_prestazioni);
 						scelta_prestazione = invia_prestazioni_erogabili(connfd,prestazioni,n_prestazioni);
-						printf("prestazioneScelta %s\n",prestazioni[scelta_prestazione]);
 						snprintf(prenotazione.prestazione,sizeof(prenotazione.prestazione),"%s",prestazioni[scelta_prestazione]);
 						ricevi_date_disponibili(sockreparto,&appuntamenti,&n_appuntamenti, prenotazione);
-						scelta_appuntamento = scelta_data_orario_disponibile(connfd,appuntamenti,n_appuntamenti);
-						strcpy(prenotazione.data_appuntamento,appuntamenti[scelta_appuntamento].data);
-						strcpy(prenotazione.orario_appuntamento,appuntamenti[scelta_appuntamento].orario);
-						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
-						invia_conferma_data(connfd,appuntamento_confermato);
-						while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0);
-						for(i=0;i<CODICE_PRENOTAZIONE;i+=2)
-							prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
-						for(i=1;i<CODICE_PRENOTAZIONE;i+=2)
-							prenotazione.codice_prenotazione[i] = (char)((rand()%26)+65);
-						prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
-						printf("codice generato: %s\n",prenotazione.codice_prenotazione);
-						snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);
-						snprintf(prenotazione.assistito.cognome,sizeof(prenotazione.assistito.cognome),"%s",dati_prenotazione_client.assistito.cognome);
-						snprintf(prenotazione.codice_ricetta,sizeof(prenotazione.codice_ricetta),"%s",dati_prenotazione_client.codice_ricetta);
-						printf("prestazione prenotata %s\n",prenotazione.prestazione);
-						//genera_codice_prenotazione(&prenotazione.codice_prenotazione);
-						FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
-						FullWrite(sockreparto,&prenotazione,sizeof(struct prenotazione));
+						if(n_appuntamenti > 0)
+						{
+							scelta_appuntamento = scelta_data_orario_disponibile(connfd,appuntamenti,n_appuntamenti);
+							strcpy(prenotazione.data_appuntamento,appuntamenti[scelta_appuntamento].data);
+							strcpy(prenotazione.orario_appuntamento,appuntamenti[scelta_appuntamento].orario);
+							appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
+							invia_conferma_data(connfd,appuntamento_confermato);
+							while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0);
+							for(i=0;i<CODICE_PRENOTAZIONE;i+=2)
+								prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
+							for(i=1;i<CODICE_PRENOTAZIONE;i+=2)
+								prenotazione.codice_prenotazione[i] = (char)((rand()%26)+65);
+							prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
+							snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);
+							snprintf(prenotazione.assistito.cognome,sizeof(prenotazione.assistito.cognome),"%s",dati_prenotazione_client.assistito.cognome);
+							snprintf(prenotazione.codice_ricetta,sizeof(prenotazione.codice_ricetta),"%s",dati_prenotazione_client.codice_ricetta);
+							FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
+							FullWrite(sockreparto,&prenotazione,sizeof(struct prenotazione));
+						}
+						else
+							FullWrite(connfd,&n_appuntamenti,sizeof(int));
 						break;
 				}
 			} while(operazione != EXIT);
