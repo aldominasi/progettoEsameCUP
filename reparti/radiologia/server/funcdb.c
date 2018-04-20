@@ -176,6 +176,15 @@ void read_from_db_prenotazioni(struct prenotazione **lista_prenotazione, int *li
 			j=0;
 			while(buff != ';')
 			{
+				lista_prenotazioni[i].orario_appuntamento[j] = buff;
+				read(fd_file,&buff,1);
+				j++;
+			}
+			lista_prenotazioni[i].orario_appuntamento[j] = '\0';
+			read(fd_file,&buff,1);
+			j=0;
+			while(buff != ';')
+			{
 				lista_prenotazioni[i].codice_ricetta[j] = buff;
 				read(fd_file,&buff,1);
 				j++;
@@ -190,9 +199,10 @@ void read_from_db_prenotazioni(struct prenotazione **lista_prenotazione, int *li
 				read(fd_file,&buff,1);
 				j++;
 			}
+			lista_prenotazioni[i].codice_prenotazione[j] = '\0';
 		}
-	}
 	*lista_prenotazione = lista_prenotazioni;
+	}
 	close(fd_file);
 }
 
@@ -200,7 +210,7 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 {
 	int fd_file,i;
 	char buff[PRESTAZIONE+1];
-	if((fd_file = open(FILEDB_PRENOTAZIONI,O_WRONLY)) == -1)
+	if((fd_file = open(FILEDB_PRENOTAZIONI,O_WRONLY | O_TRUNC)) == -1)
 	{
 		perror("open");
 		return 0;

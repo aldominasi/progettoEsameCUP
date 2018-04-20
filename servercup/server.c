@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 	struct sockaddr_in my_addr, addr_reparto;
 	listenfd = Socket(AF_INET,SOCK_STREAM,0);
 	ImpostaIndirizzoAnyServer(AF_INET,PORTA,&my_addr);
-	srand((unsigned)time(NULL));
 	if(setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &enabled, sizeof(int)) < 0)
 	{
 		perror("setsockop");
@@ -44,6 +43,7 @@ int main(int argc, char *argv[])
 			sockreparto = Socket(AF_INET,SOCK_STREAM,0);
 			ImpostaIndirizzoClient(AF_INET,"127.0.0.1",reparto,&addr_reparto);
 			Connessione(sockreparto,addr_reparto);
+			srand((unsigned)time(NULL));
 			do
 			{
 				while(FullRead(connfd,&operazione,sizeof(int)) > 0);
@@ -61,8 +61,10 @@ int main(int argc, char *argv[])
 						appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione);
 						invia_conferma_data(connfd,appuntamento_confermato);
 						while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0);
-						for(i=0;i<CODICE_PRENOTAZIONE-1;i++)
+						for(i=0;i<CODICE_PRENOTAZIONE;i+=2)
 							prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
+						for(i=1;i<CODICE_PRENOTAZIONE;i+=2)
+							prenotazione.codice_prenotazione[i] = (char)((rand()%26)+65);
 						prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
 						printf("codice generato: %s\n",prenotazione.codice_prenotazione);
 						snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);

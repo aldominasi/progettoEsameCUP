@@ -130,19 +130,23 @@ int conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotare
 void inserisci_prenotazione_in_agenda(int sock)
 {
 	int i,n, conferma = 1;
-	struct prenotazione prenotazione, *lista_prenotazioni;
+	struct prenotazione prenotazione, *lista_prenotazioni, *lista;
 	while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0); //Riceve le info sulla prenotazione
 	//Leggi dal file degli appuntamenti
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
 	n += 1;
 	printf("prenotazione B %d\n",n);
-	if(n>1)
-		lista_prenotazioni = realloc(lista_prenotazioni,n*sizeof(struct prenotazione));
-	assegna_prenotazione(&lista_prenotazioni[n-1],prenotazione);
+	lista = (struct prenotazione *) malloc(n*sizeof(struct prenotazione));
+	if(n > 1)
+	{
+		for(i=0;i<n;i++)
+			assegna_prenotazione(&lista[i],lista_prenotazioni[i]);
+		free(lista_prenotazioni);
+	}
+	assegna_prenotazione(&lista[n-1],prenotazione);
 	//ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
-	write_into_db_prenotazioni(lista_prenotazioni,n);
-	//FullWrite(sock,&conferma,sizeof(int));
+	write_into_db_prenotazioni(lista,n);
 }
 
 
@@ -363,5 +367,5 @@ void assegna_prenotazione(struct prenotazione *prenotazioneA,struct prenotazione
 	strcpy(prenotazioneA->codice_ricetta, prenotazioneB.codice_ricetta);
 	printf("%s\n",prenotazioneA->codice_ricetta);
 	strcpy(prenotazioneA->codice_prenotazione, prenotazioneB.codice_prenotazione);
-	printf("%s\n",prenotazioneB.codice_prenotazione);
+	printf("%s\n",prenotazioneA->codice_prenotazione);
 }
