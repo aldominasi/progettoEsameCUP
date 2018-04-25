@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-	char prestazione_scelta[PRESTAZIONE], data[DATA];
+	char prestazione_scelta[PRESTAZIONE], data[DATA], cod_prenotazione[CODICE_PRENOTAZIONE];
 	int listenfd, connfd, codice_comunicazione = 9, length, enabled = 1, confermato;
 	struct prenotazione appuntamento_da_confermare;
 	pid_t pid;
@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 				}
 				else if(codice_comunicazione == LISTA_TUTTE_PRENOTAZIONI)
 				{
+					printf("lista di tutte le prenotazioni\n");
 					invia_lista_prenotazioni_senza_data(connfd);
 				}
 				else if(codice_comunicazione == CONFERMA_DATA)
@@ -66,6 +67,8 @@ int main(int argc, char *argv[])
 					if(confermato == 1)
 						inserisci_prenotazione_in_agenda(connfd);
 				}
+				else if(codice_comunicazione == INFO_PRENOTAZIONE)
+					informazioni_prenotazione(connfd);
 			} while(codice_comunicazione != EXIT);
 			printf("EXIT\n");
 			close(connfd);

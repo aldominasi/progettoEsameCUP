@@ -68,3 +68,4 @@ int scelta_data_orario_disponibile(int , struct appuntamento *, int );
 void invia_conferma_data(int ,int );
 void genera_codice_prenotazione(char *);
 void invia_codice_prenotazione_client(int ,char *);
+int ricevi_info_prenotazione(int , char *, struct prenotazione *);

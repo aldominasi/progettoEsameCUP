@@ -15,52 +15,54 @@ void invia_data(int sock)
 void ricevi_prenotazioni(int sock, struct prenotazione **lista_prenotazioni, int *count)
 {
 	int n,i;
-	struct prenotazione value;
+	struct prenotazione *prenotazioni;
 	while(FullRead(sock,&n,sizeof(int)) > 0);
 	*count = n;
 	if(n > 0)
 	{
-		*lista_prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
+		prenotazioni = (struct prenotazione *)malloc(n*sizeof(struct prenotazione));
 		for(i=0;i<n;i++)
 		{
-			while(FullRead(sock,&value,sizeof(struct prenotazione)) > 0);
-			assegna_prenotazione(&(*lista_prenotazioni[i]),value);
+			while(FullRead(sock,&prenotazioni[i],sizeof(struct prenotazione)) > 0);
+			//assegna_prenotazione(&(*lista_prenotazioni[i]),value);
 		}
-		
+		*lista_prenotazioni = prenotazioni;
 	}
 }
 
-void ordina_per_orario(struct prenotazione **lista_prenotazioni, int n)
+void ordina_per_orario(struct prenotazione *prenotazioni, int n)
 {
-	struct prenotazione temp;
+	struct prenotazione temp, *lista_prenotazioni;
 	int i,j;
+	lista_prenotazioni = prenotazioni;
 	for(i=1;i<n;i++)
 	{
-		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
+		assegna_prenotazione(&temp,lista_prenotazioni[i]);
 		j=i-1;
-		while(j>=-1 && lista_prenotazioni[j]->orario_appuntamento > lista_prenotazioni[i]->orario_appuntamento)
+		while(j>=-1 && lista_prenotazioni[j].orario_appuntamento > lista_prenotazioni[i].orario_appuntamento)
 		{
-			assegna_prenotazione(&(*lista_prenotazioni[j+1]),*lista_prenotazioni[j]);
+			assegna_prenotazione(&lista_prenotazioni[j+1],lista_prenotazioni[j]);
 			j -= 1;
 		}
-		assegna_prenotazione(&(*lista_prenotazioni[j+1]),temp);
+		assegna_prenotazione(&lista_prenotazioni[j+1],temp);
 	}
 }
 
-void ordina_per_giorno_e_orario(struct prenotazione **lista_prenotazioni, int n)
+void ordina_per_giorno_e_orario(struct prenotazione *prenotazioni, int n)
 {
-	struct prenotazione temp;
+	struct prenotazione temp, *lista_prenotazioni;
 	int i,j;
+	lista_prenotazioni = prenotazioni;
 	for(i=1;i<n;i++)
 	{
-		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
+		assegna_prenotazione(&temp,lista_prenotazioni[i]);
 		j=i-1;
-		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j]->orario_appuntamento, lista_prenotazioni[i]->orario_appuntamento) == 2)) 
+		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j].orario_appuntamento, lista_prenotazioni[i].orario_appuntamento) == 2)) 
 		{
-			assegna_prenotazione(&(*lista_prenotazioni[j+1]),*lista_prenotazioni[j]);
+			assegna_prenotazione(&lista_prenotazioni[j+1],lista_prenotazioni[j]);
 			j -= 1;
 		}
-		assegna_prenotazione(&(*lista_prenotazioni[j+1]),temp);
+		assegna_prenotazione(&lista_prenotazioni[j+1],temp);
 	}
 }
 
@@ -113,7 +115,7 @@ void visualizza_lista_prenotazioni(struct prenotazione *lista_prenotazioni, int 
 	int i;
 	fprintf(stdout,"***** LISTA PRENOTAZIONI *****\n");
 	for(i=0;i<count;i++)
-			fprintf(stdout,"%s %s %s %s %s\n", lista_prenotazioni[i].codice_prenotazione, lista_prenotazioni[i].orario_appuntamento, lista_prenotazioni[i].assistito.nome,lista_prenotazioni[i].assistito.cognome, lista_prenotazioni[i].prestazione);
+			fprintf(stdout,"%s %s %s %s %s %s\n", lista_prenotazioni[i].codice_prenotazione, lista_prenotazioni[i].data_appuntamento,lista_prenotazioni[i].orario_appuntamento, lista_prenotazioni[i].assistito.nome,lista_prenotazioni[i].assistito.cognome, lista_prenotazioni[i].prestazione);
 }
 
 void invia_operazione(int sock, int operazione)

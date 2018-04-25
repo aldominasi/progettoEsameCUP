@@ -48,10 +48,10 @@ struct appuntamento
 
 void invia_data(int);
 void ricevi_prenotazioni(int , struct prenotazione **, int *);
-void ordina_per_orario(struct prenotazione **, int );
+void ordina_per_orario(struct prenotazione *, int );
 void converti_data(int *,int *, int *, char *);
 int confronta_giorno(char *,char *);
-void ordina_per_giorno_e_orario(struct prenotazione **, int );
+void ordina_per_giorno_e_orario(struct prenotazione *, int );
 void visualizza_lista_prenotazioni(struct prenotazione *, int );
 void invia_operazione(int, int);
 void assegna_prenotazione(struct prenotazione *,struct prenotazione );

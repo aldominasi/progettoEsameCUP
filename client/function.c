@@ -146,7 +146,22 @@ void cancella_prenotazione(int sock)
 //Function utilizzata quando l'utente digita il codice per le informazioni di una visita
 void info_prenotazione(int sock)
 {
-
+	char codice_prenotazione[CODICE_PRENOTAZIONE];
+	int trovato, operazione = INFO_PRENOTAZIONE;
+	struct prenotazione prenotazione;
+	printf("Inserisci il codice di prenotazione: ");
+	scanf("%s",codice_prenotazione);
+	codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
+	FullWrite(sock,&operazione,sizeof(int));
+	FullWrite(sock,codice_prenotazione,CODICE_PRENOTAZIONE);
+	while(FullRead(sock,&trovato,sizeof(int)) > 0);
+	if(trovato == 1)
+	{
+		while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0);
+		fprintf(stdout,"%s %s %s %s %s %s\n", prenotazione.codice_prenotazione, prenotazione.data_appuntamento,prenotazione.orario_appuntamento, prenotazione.assistito.nome,prenotazione.assistito.cognome, prenotazione.prestazione);
+	}
+	else
+		printf("Non è stata trovata alcuna prenotazione\n");
 }
 
 //Function utilizzata quando l'utente digita il codice per la lista delle prenotazioni
