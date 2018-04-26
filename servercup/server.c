@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[])
 {
-	int listenfd, connfd, enabled = 1, operazione, reparto,scelta_prestazione,n_prestazioni, sockreparto, i, trovato;
+	int listenfd, connfd, enabled = 1, operazione, reparto,scelta_prestazione,n_prestazioni, sockreparto, i, trovato, op;
 	int n_appuntamenti, scelta_appuntamento, appuntamento_confermato;
 	char **prestazioni, codice_prenotazione[CODICE_PRENOTAZIONE];
 	struct appuntamento *appuntamenti;
@@ -77,8 +77,10 @@ int main(int argc, char *argv[])
 							FullWrite(connfd,&n_appuntamenti,sizeof(int));
 						break;
 					case INFO_PRENOTAZIONE_UTENTE:
-						while(FullRead(connfd,&codice_prenotazione,sizeof(CODICE_PRENOTAZIONE)) > 0);
-						trovato = ricevi_info_prenotazione(sockreparto, codice_prenotazione, &prenotazione);
+						while(FullRead(connfd,codice_prenotazione,CODICE_PRENOTAZIONE) > 0);
+						op = INFO_PRENOTAZIONE_REPARTO;
+						FullWrite(sockreparto,&op,sizeof(int));
+						ricevi_info_prenotazione(sockreparto, codice_prenotazione, &prenotazione, &trovato);
 						FullWrite(connfd,&trovato,sizeof(int));
 						if(trovato == 1)
 							FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));

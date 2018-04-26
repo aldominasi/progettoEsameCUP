@@ -222,9 +222,9 @@ void informazioni_prenotazione(int sock)
 	struct prenotazione *lista_prenotazioni;
 	char codice_prenotazione[CODICE_PRENOTAZIONE];
 	read_from_db_prenotazioni(&lista_prenotazioni,&count);
+	while(FullRead(sock,codice_prenotazione,CODICE_PRENOTAZIONE) > 0);
 	if(count > 0) //Ci sono prenotazioni effettuate
 	{
-		while(FullRead(sock,&codice_prenotazione,CODICE_PRENOTAZIONE) > 0);
 		for(i=0;i<count;i++)
 		{
 			if(strcmp(codice_prenotazione,lista_prenotazioni[i].codice_prenotazione) == 0)
@@ -237,8 +237,10 @@ void informazioni_prenotazione(int sock)
 		}
 		if(trovato == 0) //Non è stata trovata la prenotazione
 			FullWrite(sock,&trovato,sizeof(int));
+		free(lista_prenotazioni);
 	}
-	free(lista_prenotazioni);
+	else
+		FullWrite(sock,&trovato,sizeof(int));
 }
 
 void invia_lista_prenotazioni(int sock, char *data)
