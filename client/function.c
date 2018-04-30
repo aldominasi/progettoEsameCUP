@@ -140,7 +140,38 @@ void prenota(int sock, char *reparto)
 //Function utilizzata quando l'utente digita il codice per la cancellazione di una visita
 void cancella_prenotazione(int sock)
 {
-	
+	char codice_prenotazione[CODICE_PRENOTAZIONE], risposta='c';
+	int trovato, operazione = CANCELLA_PRENOTAZIONE, elimina, operazione_completata;
+	struct prenotazione prenotazione;
+	do
+	{
+		printf("Inserisci il codice di prenotazione (10 caratteri): ");
+		scanf("%s",codice_prenotazione);
+	} while(strlen(codice_prenotazione) != 10);
+	codice_prenotazione[CODICE_PRENOTAZIONE-1]='\0';
+	FullWrite(sock,codice_prenotazione,CODICE_PRENOTAZIONE);
+	while(FullRead(sock,&trovato,sizeof(int)) > 0);
+	if(trovato == 1)
+	{
+		while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0);
+		do
+		{
+			fprintf(stdout,"Sei sicuro di voler cancella la seguente prenotazione? (y/n)\n%s %s %s\n",prenotazione.prestazione,prenotazione.data_appuntamento,prenotazione.orario_appuntamento);
+			scanf("%c",&risposta);
+		} while(risposta != 'y' && risposta != 'n');
+		if(risposta == 'y')
+			elimina = 1;
+		else
+			elimina = 0;
+		FullWrite(sock,&elimina,sizeof(int));
+		while(FullRead(sock,&operazione_completata,sizeof(int)) > 0);
+		if(operazione_completata  == 1)
+			fprintf(stdout,"La prenotazione è stata cancellata\n");
+		else
+			fprintf(stdout,"La prenotazione non è stata canncellata\n");
+	}
+	else
+		fprintf(stdout,"La prenotazione relativa al codice di prenotazione non è stata trovata\n");
 }
 
 //Function utilizzata quando l'utente digita il codice per le informazioni di una visita
@@ -155,7 +186,6 @@ void info_prenotazione(int sock)
 		scanf("%s",codice_prenotazione);
 	} while(strlen(codice_prenotazione) != 10);
 	codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
-	printf("codice %s\n",codice_prenotazione);
 	FullWrite(sock,codice_prenotazione,CODICE_PRENOTAZIONE);
 	while(FullRead(sock,&trovato,sizeof(int)) > 0);
 	if(trovato == 1)

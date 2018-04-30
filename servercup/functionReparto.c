@@ -58,7 +58,6 @@ void invia_prenotazione_completa(int sock, struct prenotazione prenotazione)
 
 void ricevi_info_prenotazione(int sock, char *codice_prenotazione, struct prenotazione *prenotazione, int *trovato)
 {
-	int operazione = INFO_PRENOTAZIONE_REPARTO;
 	struct prenotazione prenot;
 	FullWrite(sock,codice_prenotazione,CODICE_PRENOTAZIONE);
 	while(FullRead(sock,trovato,sizeof(int)) > 0);
@@ -67,4 +66,12 @@ void ricevi_info_prenotazione(int sock, char *codice_prenotazione, struct prenot
 		while(FullRead(sock,&prenot,sizeof(struct prenotazione)) > 0);
 		*prenotazione = prenot;
 	}
+}
+
+int cancella_prenotazione(int sock, struct prenotazione prenotazione)
+{
+	int cancellato;
+	FullWrite(sock,&prenotazione,sizeof(struct prenotazione));
+	while(FullRead(sock,&cancellato,sizeof(int)) > 0);
+	return cancellato;
 }

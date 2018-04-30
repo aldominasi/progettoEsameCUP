@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
 	int listenfd, connfd, enabled = 1, operazione, reparto,scelta_prestazione,n_prestazioni, sockreparto, i, trovato, op;
-	int n_appuntamenti, scelta_appuntamento, appuntamento_confermato;
+	int n_appuntamenti, scelta_appuntamento, appuntamento_confermato, conferma_cancellazione_reparto, conferma_cancellazione_utente;
 	char **prestazioni, codice_prenotazione[CODICE_PRENOTAZIONE];
 	struct appuntamento *appuntamenti;
 	struct prenotazione prenotazione, dati_prenotazione_client;
@@ -84,6 +84,25 @@ int main(int argc, char *argv[])
 						FullWrite(connfd,&trovato,sizeof(int));
 						if(trovato == 1)
 							FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
+						break;
+					case CANCELLA_PRENOTAZIONE_UTENTE:
+						while(FullRead(connfd,codice_prenotazione,CODICE_PRENOTAZIONE) > 0);
+						op = INFO_PRENOTAZIONE_REPARTO;
+						FullWrite(sockreparto,&op,sizeof(int));
+						ricevi_info_prenotazione(sockreparto, codice_prenotazione, &prenotazione,&trovato);
+						FullWrite(connfd,&trovato,sizeof(int));
+						if(trovato == 1)
+						{
+							FullWrite(connfd,&prenotazione,sizeof(struct prenotazione));
+							while(FullRead(connfd,&conferma_cancellazione_utente,sizeof(int)) > 0);
+							if(conferma_cancellazione_utente == 1)
+							{
+								op = CANCELLA_PRENOTAZIONE_REPARTO;
+								FullWrite(sockreparto,&op,sizeof(int));
+								conferma_cancellazione_reparto = cancella_prenotazione(sockreparto,prenotazione);
+								FullWrite(connfd,&conferma_cancellazione_reparto,sizeof(int));
+							}
+						}
 						break;
 				}
 			} while(operazione != EXIT);

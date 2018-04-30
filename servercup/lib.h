@@ -69,3 +69,4 @@ void invia_conferma_data(int ,int );
 void genera_codice_prenotazione(char *);
 void invia_codice_prenotazione_client(int ,char *);
 void ricevi_info_prenotazione(int , char *, struct prenotazione *, int *);
+int cancella_prenotazione(int , struct prenotazione );
