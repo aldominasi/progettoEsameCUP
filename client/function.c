@@ -141,7 +141,7 @@ void prenota(int sock, char *reparto)
 void cancella_prenotazione(int sock)
 {
 	char codice_prenotazione[CODICE_PRENOTAZIONE], risposta='c';
-	int trovato, operazione = CANCELLA_PRENOTAZIONE, elimina, operazione_completata;
+	int trovato, operazione = CANCELLA_PRENOTAZIONE, elimina=0, operazione_completata;
 	struct prenotazione prenotazione;
 	do
 	{
@@ -154,21 +154,27 @@ void cancella_prenotazione(int sock)
 	if(trovato == 1)
 	{
 		while(FullRead(sock,&prenotazione,sizeof(struct prenotazione)) > 0);
+		while(getchar() != '\n');
 		do
 		{
 			fprintf(stdout,"Sei sicuro di voler cancella la seguente prenotazione? (y/n)\n%s %s %s\n",prenotazione.prestazione,prenotazione.data_appuntamento,prenotazione.orario_appuntamento);
 			scanf("%c",&risposta);
 		} while(risposta != 'y' && risposta != 'n');
 		if(risposta == 'y')
+		{
 			elimina = 1;
+			FullWrite(sock,&elimina,sizeof(int));
+			while(FullRead(sock,&operazione_completata,sizeof(int)) > 0);
+			if(operazione_completata  == 1)
+				fprintf(stdout,"La prenotazione è stata cancellata\n");
+			else
+				fprintf(stdout,"La prenotazione non è stata canncellata\n");
+		}
 		else
-			elimina = 0;
-		FullWrite(sock,&elimina,sizeof(int));
-		while(FullRead(sock,&operazione_completata,sizeof(int)) > 0);
-		if(operazione_completata  == 1)
-			fprintf(stdout,"La prenotazione è stata cancellata\n");
-		else
-			fprintf(stdout,"La prenotazione non è stata canncellata\n");
+		{
+			FullWrite(sock,&elimina,sizeof(int));
+			fprintf(stdout,"Hai annullato l'operazione\n");
+		}
 	}
 	else
 		fprintf(stdout,"La prenotazione relativa al codice di prenotazione non è stata trovata\n");
