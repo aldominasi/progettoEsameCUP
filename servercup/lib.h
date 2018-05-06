@@ -66,7 +66,5 @@ void invia_prenotazione_completa(int, struct prenotazione);
 int invia_prestazioni_erogabili(int , char **, int );
 int scelta_data_orario_disponibile(int , struct appuntamento *, int );
 void invia_conferma_data(int ,int );
-void genera_codice_prenotazione(char *);
-void invia_codice_prenotazione_client(int ,char *);
 void ricevi_info_prenotazione(int , char *, struct prenotazione *, int *);
 int cancella_prenotazione(int , struct prenotazione );

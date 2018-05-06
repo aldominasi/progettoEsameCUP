@@ -30,7 +30,6 @@ int invia_prestazioni_erogabili(int sock, char **prestazioni, int n)
 		FullWrite(sock,prestazioni[i],length);
 	}
 	while(FullRead(sock,&scelta,sizeof(int)) > 0);
-	fprintf(stdout,"scelta %s\n",prestazioni[scelta]);
 	return scelta;
 }
 
@@ -47,18 +46,4 @@ int scelta_data_orario_disponibile(int sock, struct appuntamento *date, int n)
 void invia_conferma_data(int sock,int conferma)
 {
 	FullWrite(sock,&conferma,sizeof(int));
-}
-
-void genera_codice_prenotazione(char *codice)
-{
-	char i;
-	for(i=0;i<CODICE_PRENOTAZIONE-1;i++)
-		codice[i] = (char)((rand()%10)+48);
-	codice[CODICE_PRENOTAZIONE-1] = '\0';
-	printf("codice generato: %s\n", codice);
-}
-
-void invia_codice_prenotazione_client(int sock,char *codice)
-{
-	FullWrite(sock,codice,CODICE_PRENOTAZIONE);
 }
