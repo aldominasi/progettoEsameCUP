@@ -45,5 +45,4 @@ int scegli_operazione(int);
 void prenota(int , char *);
 void cancella_prenotazione(int );
 void info_prenotazione(int );
-void lista_prenotazioni(int );
 int scegli_data_prenotazione(int , struct appuntamento *);

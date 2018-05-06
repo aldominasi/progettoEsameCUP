@@ -25,7 +25,6 @@ void read_from_db(struct disponibilita **lista, int *lines)
 		lista_disponibilita = malloc(*lines * sizeof(struct disponibilita *));
 		for(i=0;i<*lines;i++)
 		{
-			//lista_disponibilita[i] = malloc(sizeof(struct disponibilita));
 			j=0;
 			read(fd_file,&buff,1);
 			while(buff != ';')
@@ -35,7 +34,6 @@ void read_from_db(struct disponibilita **lista, int *lines)
 				j++;
 			}
 			lista_disponibilita[i].prestazione[j] = '\0';
-			//fprintf(stdout,"%s\n",lista_disponibilita[i].prestazione);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
@@ -45,7 +43,6 @@ void read_from_db(struct disponibilita **lista, int *lines)
 				j++;
 			}
 			lista_disponibilita[i].data[j] = '\0';
-			//fprintf(stdout,"%s ",lista_disponibilita[i].data);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != ';')
@@ -55,7 +52,6 @@ void read_from_db(struct disponibilita **lista, int *lines)
 				j++;
 			}
 			lista_disponibilita[i].orario[j] = '\0';
-			//fprintf(stdout,"%s ",lista_disponibilita[i].orario);
 			read(fd_file,&buff,1);
 			j=0;
 			while(buff != '\n')
@@ -65,11 +61,9 @@ void read_from_db(struct disponibilita **lista, int *lines)
 				read(fd_file,&buff,1);
 				j++;
 			}
-			//fprintf(stdout,"%c\n",lista_disponibilita[i].disponibile);
 		}
 	}
 	*lista = lista_disponibilita;
-	//free(lista_disponibilita);
 	close(fd_file);
 }
 
@@ -92,16 +86,6 @@ int write_into_db(struct disponibilita *lista_disponibilita, int n)
 		FullWrite(fd_file,buff,strlen(buff));
 		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
 		FullWrite(fd_file,buff,strlen(buff));
-/*
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].prestazione);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].data);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%s;",lista_disponibilita[i].orario);
-		fprintf(stdout,"%s",buff);
-		snprintf(buff,sizeof(buff),"%c\n",lista_disponibilita[i].disponibile);
-		fprintf(stdout,"%s",buff);
-*/
 	}
 	close(fd_file);
 	return 1;
@@ -215,7 +199,6 @@ int write_into_db_prenotazioni(struct prenotazione * lista_prenotazioni, int cou
 		perror("open");
 		return 0;
 	}
-	printf("write_into_db_prenotazioni\n");
 	for(i = 0;i<count;i++)
 	{
 		snprintf(buff,sizeof(buff),"%s;",lista_prenotazioni[i].assistito.nome);

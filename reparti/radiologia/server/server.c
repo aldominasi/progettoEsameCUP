@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
 				else if(codice_comunicazione == CANCELLA_PRENOTAZIONE)
 					cancella_prenotazione(connfd);
 			} while(codice_comunicazione != EXIT);
-			printf("EXIT\n");
 			close(connfd);
 			exit(0);
 		}

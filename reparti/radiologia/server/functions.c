@@ -22,10 +22,8 @@ void invia_prestazioni_erogabili(int sock)
 	{
 		strcpy(temp,lista_disponibilita[0].prestazione);
 		strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
-		//fprintf(stdout,"%s\n",prestazioni[0]);
 		for(i=1;i<n;i++)
 		{
-			//fprintf(stdout,"proviamo %s\n",lista_disponibilita[i].prestazione);
 			if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
 			{
 				strcpy(temp,lista_disponibilita[i].prestazione);
@@ -37,7 +35,6 @@ void invia_prestazioni_erogabili(int sock)
 		//Invia le prestazioni
 		for(i=0;i<count;i++)
 		{
-			//fprintf(stdout,"%s\n",prestazioni[i]);
 			length = (int)strlen(prestazioni[i]);
 			FullWrite(sock,&length,sizeof(int));
 			FullWrite(sock,prestazioni[i],length);
@@ -135,7 +132,6 @@ void inserisci_prenotazione_in_agenda(int sock)
 	//Leggi dal file degli appuntamenti
 	read_from_db_prenotazioni(&lista_prenotazioni,&n);
 	n += 1;
-	printf("prenotazione B %d\n",n);
 	lista = (struct prenotazione *) malloc(n*sizeof(struct prenotazione));
 	if(n > 1)
 	{
@@ -144,7 +140,6 @@ void inserisci_prenotazione_in_agenda(int sock)
 		free(lista_prenotazioni);
 	}
 	assegna_prenotazione(&lista[n-1],prenotazione);
-	//ordina_per_giorno_e_orario(&lista_prenotazioni,n);
 	//una volta aggiunta la nuova prenotazione scrive l'intera banca dati nel file
 	write_into_db_prenotazioni(lista,n);
 }
@@ -185,19 +180,13 @@ void invia_lista_prenotazioni(int sock, char *data)
 	if(count > 0) //Ci sono prenotazioni effettuate
 	{
 		for(i=0;i<count;i++)
-		{
 			if(strcmp(data,lista_prenotazioni[i].data_appuntamento) == 0)
-			{
 				trovato += 1;
-			}
-		}
 		FullWrite(sock,&trovato,sizeof(int));
 		if(trovato > 0)
-		{
 			for(i=0;i<count;i++)
 				if(strcmp(data,lista_prenotazioni[i].data_appuntamento) == 0)
 					FullWrite(sock,&lista_prenotazioni[i],sizeof(struct prenotazione));
-		}
 	}
 	else
 		FullWrite(sock,&count,sizeof(int));
@@ -212,10 +201,8 @@ void invia_lista_prenotazioni_senza_data(int sock)
 	read_from_db_prenotazioni(&lista_prenotazioni,&count);
 	FullWrite(sock,&count,sizeof(int));
 	if(count > 0) //Ci sono prenotazioni effettuate
-	{
 		for(i=0;i<count;i++)
 			FullWrite(sock,&lista_prenotazioni[i],sizeof(struct prenotazione));
-	}
 	free(lista_prenotazioni);
 }
 
@@ -225,19 +212,14 @@ void ordina_per_giorno_e_orario(struct prenotazione **lista_prenotazioni, int n)
 	int i,j;
 	for(i=1;i<n;i++)
 	{
-		printf("il for inizia qui %d\n",n);
-		printf("ordinamento: %s\n",lista_prenotazioni[i]->assistito.nome);
 		assegna_prenotazione(&temp,*lista_prenotazioni[i]);
 		j=i-1;
-		printf("for qui\n");
 		while(j>=-1 && (confronta_giorno(lista_prenotazioni[j]->data_appuntamento, lista_prenotazioni[i]->data_appuntamento) == 2)) 
 		{
-			printf("anke qui\n");
 			assegna_prenotazione(&(*lista_prenotazioni[j+1]),*lista_prenotazioni[j]);
 			j -= 1;
 		}
 		assegna_prenotazione(&(*lista_prenotazioni[j+1]),temp);
-		printf("qui\n");
 	}
 }
 
@@ -287,21 +269,13 @@ void converti_data(int *giorno,int *mese, int *anno, char *data)
 
 void assegna_prenotazione(struct prenotazione *prenotazioneA,struct prenotazione prenotazioneB)
 {
-	printf("assegna prenotazione 1234\n");
 	snprintf(prenotazioneA->assistito.nome, sizeof(prenotazioneA->assistito.nome), "%s",prenotazioneB.assistito.nome);
-	printf("%s\n",prenotazioneA->assistito.nome);
 	strcpy(prenotazioneA->assistito.cognome, prenotazioneB.assistito.cognome);
-	printf("%s\n",prenotazioneA->assistito.cognome);
 	strcpy(prenotazioneA->prestazione, prenotazioneB.prestazione);
-	printf("%s\n",prenotazioneA->prestazione);
 	strcpy(prenotazioneA->data_appuntamento, prenotazioneB.data_appuntamento);
-	printf("%s\n",prenotazioneA->data_appuntamento);
 	strcpy(prenotazioneA->orario_appuntamento, prenotazioneB.orario_appuntamento);
-	printf("%s\n",prenotazioneA->orario_appuntamento);
 	strcpy(prenotazioneA->codice_ricetta, prenotazioneB.codice_ricetta);
-	printf("%s\n",prenotazioneA->codice_ricetta);
 	strcpy(prenotazioneA->codice_prenotazione, prenotazioneB.codice_prenotazione);
-	printf("%s\n",prenotazioneA->codice_prenotazione);
 }
 
 void cancella_prenotazione(int sock)
