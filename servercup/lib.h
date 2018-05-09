@@ -62,7 +62,6 @@ void read_from_db_reparti(struct reparti **, int *);
 int count_rows(int);
 void ricevi_date_disponibili(int , struct appuntamento **,int *, struct prenotazione );
 int conferma_appuntamento(int, struct prenotazione);
-void invia_prenotazione_completa(int, struct prenotazione);
 int invia_prestazioni_erogabili(int , char **, int );
 int scelta_data_orario_disponibile(int , struct appuntamento *, int );
 void invia_conferma_data(int ,int );
