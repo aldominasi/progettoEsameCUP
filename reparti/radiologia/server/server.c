@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
 					cancella_prenotazione(connfd); //cerca e cancella la prenotazione ricevuta
 			} while(codice_comunicazione != EXIT); //finchè non riceve il codice che identifica la chiusura della comunicazione
 			close(connfd);
+			printf("EXIT\n");
 			exit(0);
 		}
 	}

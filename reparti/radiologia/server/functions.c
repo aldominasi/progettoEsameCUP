@@ -106,7 +106,7 @@ int conferma_appuntamento(int sock, struct prenotazione prestazione_da_prenotare
 			}
 			else //l'appuntamento non è disponibile
 			{
-				confermato = 0; //appuntamento non confermato
+				confermato = -1; //appuntamento non confermato
 				FullWrite(sock,&confermato,sizeof(int)); //invia al richiedente lo stato dell'operazione
 			}
 		}

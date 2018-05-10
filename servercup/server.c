@@ -61,19 +61,22 @@ int main(int argc, char *argv[])
 							strcpy(prenotazione.data_appuntamento,appuntamenti[scelta_appuntamento].data);
 							strcpy(prenotazione.orario_appuntamento,appuntamenti[scelta_appuntamento].orario);
 							appuntamento_confermato = conferma_appuntamento(sockreparto,prenotazione); //attende che il reparto confermi la prenotazione
-							invia_conferma_data(connfd,appuntamento_confermato); //notifica al client la conferma della prenotazione
-							while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0); //riceve informazioni dell'assistito
-						//genera il codice della prenotazione
-							for(i=0;i<CODICE_PRENOTAZIONE;i+=2)
-								prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
-							for(i=1;i<CODICE_PRENOTAZIONE;i+=2)
-								prenotazione.codice_prenotazione[i] = (char)((rand()%26)+65);
-							prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
-							snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);
-							snprintf(prenotazione.assistito.cognome,sizeof(prenotazione.assistito.cognome),"%s",dati_prenotazione_client.assistito.cognome);
-							snprintf(prenotazione.codice_ricetta,sizeof(prenotazione.codice_ricetta),"%s",dati_prenotazione_client.codice_ricetta);
-							FullWrite(connfd,&prenotazione,sizeof(struct prenotazione)); //invia i dati della prenotazione con il codice prenotazione al reparto
-							FullWrite(sockreparto,&prenotazione,sizeof(struct prenotazione)); //invia i dati della prenotazione con il codice prenotazione al client
+							FullWrite(connfd,&appuntamento_confermato,sizeof(int)); //notifica al client la conferma della prenotazione
+							if(appuntamento_confermato == 1)
+							{
+								while(FullRead(connfd,&dati_prenotazione_client,sizeof(struct prenotazione)) > 0); //riceve informazioni dell'assistito
+							//genera il codice della prenotazione
+								for(i=0;i<CODICE_PRENOTAZIONE;i+=2)
+									prenotazione.codice_prenotazione[i] = (char)((rand()%10)+48);
+								for(i=1;i<CODICE_PRENOTAZIONE;i+=2)
+									prenotazione.codice_prenotazione[i] = (char)((rand()%26)+65);
+								prenotazione.codice_prenotazione[CODICE_PRENOTAZIONE-1] = '\0';
+								snprintf(prenotazione.assistito.nome,sizeof(prenotazione.assistito.nome),"%s",dati_prenotazione_client.assistito.nome);
+								snprintf(prenotazione.assistito.cognome,sizeof(prenotazione.assistito.cognome),"%s",dati_prenotazione_client.assistito.cognome);
+								snprintf(prenotazione.codice_ricetta,sizeof(prenotazione.codice_ricetta),"%s",dati_prenotazione_client.codice_ricetta);
+								FullWrite(connfd,&prenotazione,sizeof(struct prenotazione)); //invia i dati della prenotazione con il codice prenotazione al reparto
+								FullWrite(sockreparto,&prenotazione,sizeof(struct prenotazione)); //invia i dati della prenotazione con il codice prenotazione al client
+							}
 						}
 						else  //se non ci sono date disponibili
 							FullWrite(connfd,&n_appuntamenti,sizeof(int));
