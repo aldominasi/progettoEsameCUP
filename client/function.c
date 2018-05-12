@@ -161,6 +161,8 @@ void prenota(int sock, char *reparto)
 		//visualizza data e ora dell'appuntamento prenotato e il relativo codice di prenotazione da conservare
 		fprintf(stdout,"data appuntamento: %s ora appuntamento: %s codice prenotazione: %s\n",datiprenotazione.data_appuntamento,datiprenotazione.orario_appuntamento,datiprenotazione.codice_prenotazione);
 	}
+	else if(conferma == -1)
+		fprintf(stdout,"La prenotazione non è più disponibile\n");
 	else
 		fprintf(stdout,"La prenotazione non è stata completata\n");
 }

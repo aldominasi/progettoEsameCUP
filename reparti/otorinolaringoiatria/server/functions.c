@@ -20,16 +20,16 @@ void invia_prestazioni_erogabili(int sock)
 	read_from_db(&lista_disponibilita,&n); //Recupera dal file le disponibilita del reparto
 	if (n > 0) //n contiene il numero di disponibilita presenti in lista_disponibilita
 	{
-		strcpy(temp,lista_disponibilita[0].prestazione);
-		strcpy(prestazioni[0],lista_disponibilita[0].prestazione);
+		snprintf(temp,sizeof(temp),"%s",lista_disponibilita[0].prestazione);
+		snprintf(prestazioni[0],sizeof(prestazioni[0]),"%s",lista_disponibilita[0].prestazione);
 //Ricerca di prestazioni erogabili
 		for(i=1;i<n;i++)
 		{
 			if(strcmp(temp, lista_disponibilita[i].prestazione) != 0)
 			{
-				strcpy(temp,lista_disponibilita[i].prestazione);
+				snprintf(temp,sizeof(temp),"%s",lista_disponibilita[i].prestazione);
 				j++;
-				strcpy(prestazioni[j],lista_disponibilita[i].prestazione);
+				snprintf(prestazioni[j],sizeof(prestazioni[j]),"%s",lista_disponibilita[i].prestazione);
 			}
 		}
 		FullWrite(sock,&count,sizeof(int)); //Invia il numero di prestazioni erogabili

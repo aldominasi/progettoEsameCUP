@@ -2,7 +2,7 @@
 #include "disponibilita.h"
 #include "frdwr.h"
 
-#define PORTA 3001 //porta del server del reparto
+#define PORTA 3002 //porta del server del reparto
 #define CLIENT_QUEUE 100 //numero max di client in coda
 #define SEM_MODE S_IRUSR | S_IWUSR
 
@@ -17,11 +17,11 @@ int main(int argc, char *argv[])
 	struct prenotazione appuntamento_da_confermare;
 	pid_t pid;
 	struct sockaddr_in my_addr;
-	sem_disponibilita = sem_open("semaforoDisponibilitaRadiologia",O_CREAT,SEM_MODE,1);
+	sem_disponibilita = sem_open("semaforoDisponibilitaOtorino",O_CREAT,SEM_MODE,1);
 	sem_getvalue(sem_disponibilita,&val_sem_disponibilita);
 	if(val_sem_disponibilita == 0)
 		sem_post(sem_disponibilita);
-	sem_prenotazioni = sem_open("semaforoPrenotazioniRadiologia",O_CREAT,SEM_MODE,1);
+	sem_prenotazioni = sem_open("semaforoPrenotazioniOtorino",O_CREAT,SEM_MODE,1);
 	sem_getvalue(sem_prenotazioni,&val_sem_prenotazioni);
 	if(val_sem_prenotazioni == 0)
 		sem_post(sem_prenotazioni);
